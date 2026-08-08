@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }) => {
           unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
               setUser({
-                name: firebaseUser.displayName || firebaseUser.email,
+                name: firebaseUser.displayName || 'Nguyen Van Duc',
                 email: firebaseUser.email,
-                phone: firebaseUser.phoneNumber || '',
+                phone: firebaseUser.phoneNumber || '0788551709',
                 uid: firebaseUser.uid || ''
               });
               setIsLoggedIn(true);
@@ -87,13 +87,31 @@ export const AuthProvider = ({ children }) => {
         const credential = await signInWithEmailAndPassword(auth, email, password);
         const firebaseUser = credential.user;
         const updated = {
-          name: firebaseUser.displayName || firebaseUser.email,
+          name: firebaseUser.displayName || 'Nguyen Van Duc',
           email: firebaseUser.email,
-          phone: firebaseUser.phoneNumber || '',
+          phone: firebaseUser.phoneNumber || '0788551709',
           uid: firebaseUser.uid || ''
         };
         saveAuth(updated, true);
       } catch (e) {
+        // If account doesn't exist yet on hikingapp-81d90, auto register account
+        if (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-email') {
+          try {
+            const signupCred = await createUserWithEmailAndPassword(auth, email, password);
+            const firebaseUser = signupCred.user;
+            await firebaseUpdateProfile(firebaseUser, { displayName: 'Nguyen Van Duc' });
+            const updated = {
+              name: 'Nguyen Van Duc',
+              email: firebaseUser.email,
+              phone: '0788551709',
+              uid: firebaseUser.uid || ''
+            };
+            saveAuth(updated, true);
+            return;
+          } catch (signupErr) {
+            console.log('Auto signup fallback error:', signupErr);
+          }
+        }
         console.error('Firebase sign in error', e);
         throw e;
       }
@@ -139,11 +157,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateProfile = async (name, phone) => {
-    const updated = { ...user, name, phone };
+  const updateProfile = async (nameData, phoneData) => {
+    const nameVal = typeof nameData === 'string' ? nameData : nameData?.name || user.name;
+    const phoneVal = typeof nameData === 'object' && nameData?.phone ? nameData.phone : (phoneData || user.phone);
+    
+    const updated = { ...user, name: nameVal, phone: phoneVal };
     if (isFirebaseEnabled && auth && auth.currentUser) {
       try {
-        await firebaseUpdateProfile(auth.currentUser, { displayName: name });
+        await firebaseUpdateProfile(auth.currentUser, { displayName: nameVal });
       } catch (e) {
         console.error('Firebase profile update error', e);
       }

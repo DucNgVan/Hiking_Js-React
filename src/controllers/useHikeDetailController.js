@@ -6,13 +6,27 @@ import { validateObservationInput, buildObservationPayload } from '../models/obs
 export const useHikeDetailController = (hikeId, navigation) => {
   const { trails, favorites, toggleFavorite, deleteHike, addObservation, deleteObservation } = useHikes();
 
-  const trail = trails.find(t => t.id === hikeId);
+  const trail = trails.find(t => t.id === hikeId || t.firebaseId === hikeId || String(t.id) === String(hikeId));
   const [obsModalVisible, setObsModalVisible] = useState(false);
 
-  const isFavorite = trail ? favorites.includes(trail.id) : false;
+  const targetId = trail?.firebaseId || trail?.id || hikeId;
+  const isFavorite = targetId ? favorites.includes(targetId) : false;
   const observations = trail?.observations || [];
-  const startLat = (trail?.plannedRoute && trail?.plannedRoute[0]?.lat) || trail?.coordinates?.latitude || trail?.lat || 16.047079;
-  const startLng = (trail?.plannedRoute && trail?.plannedRoute[0]?.lng) || trail?.coordinates?.longitude || trail?.lng || 108.206230;
+
+  const startLat = parseFloat(
+    (trail?.plannedRoute && trail?.plannedRoute[0]?.lat) ||
+    trail?.coordinates?.latitude ||
+    trail?.startLat ||
+    trail?.lat ||
+    16.047079
+  );
+  const startLng = parseFloat(
+    (trail?.plannedRoute && trail?.plannedRoute[0]?.lng) ||
+    trail?.coordinates?.longitude ||
+    trail?.startLng ||
+    trail?.lng ||
+    108.206230
+  );
 
   const handleDeleteHike = () => {
     if (!trail) return;
@@ -25,7 +39,7 @@ export const useHikeDetailController = (hikeId, navigation) => {
           text: "Delete", 
           style: "destructive", 
           onPress: () => {
-            deleteHike(trail.id);
+            deleteHike(targetId);
             navigation.goBack();
           } 
         }
@@ -40,8 +54,8 @@ export const useHikeDetailController = (hikeId, navigation) => {
       return;
     }
 
-    const payload = buildObservationPayload(obsData);
-    addObservation(trail.id, payload);
+    const payload = buildObservationPayload(obsData, targetId);
+    addObservation(targetId, payload);
     setObsModalVisible(false);
   };
 
@@ -51,7 +65,7 @@ export const useHikeDetailController = (hikeId, navigation) => {
       "Are you sure you want to delete this observation note?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: () => deleteObservation(trail.id, obsId) }
+        { text: "Delete", style: "destructive", onPress: () => deleteObservation(targetId, obsId) }
       ]
     );
   };
@@ -64,7 +78,7 @@ export const useHikeDetailController = (hikeId, navigation) => {
     startLng,
     obsModalVisible,
     setObsModalVisible,
-    toggleFavorite: () => trail && toggleFavorite(trail.id),
+    toggleFavorite: () => targetId && toggleFavorite(targetId),
     handleDeleteHike,
     handleAddObs,
     handleDeleteObs
