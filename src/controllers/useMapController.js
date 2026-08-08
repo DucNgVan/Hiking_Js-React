@@ -1,20 +1,43 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Alert } from 'react-native';
-import { subscribeLiveGps } from '../services/locationService';
+import { subscribeLiveGps, getCurrentGpsLocation } from '../services/locationService';
 import { searchLocationChain, reverseGeocodeChain } from '../services/geocodingService';
+import { MAPBOX_ACCESS_TOKEN } from '../config';
+
+const VIETNAM_DEFAULT_LAT = 16.047079;
+const VIETNAM_DEFAULT_LNG = 108.206230;
 
 export const useMapController = () => {
   const [userGps, setUserGps] = useState(null);
-  const [gpsStatus, setGpsStatus] = useState('Initializing GPS...');
+  const [gpsStatus, setGpsStatus] = useState('Initializing Live GPS...');
   const [isLocating, setIsLocating] = useState(true);
-  const [isMapReady, setIsMapReady] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const webViewRef = useRef(null);
   const locationSubscriptionRef = useRef(null);
   const initialSyncRef = useRef(false);
+
+  const handleGetLocation = async () => {
+    setIsLocating(true);
+    try {
+      const gps = await getCurrentGpsLocation();
+      if (gps) {
+        setUserGps(gps);
+        setGpsStatus('Live GPS Tracking');
+        setErrorMsg(null);
+        if (webViewRef.current) {
+          webViewRef.current.injectJavaScript(
+            `if (window.updateUserLocation) { window.updateUserLocation(${gps.lat}, ${gps.lng}, ${gps.accuracy || 10}, true); } true;`
+          );
+        }
+      }
+    } catch (e) {
+      console.error('GPS error:', e);
+      setErrorMsg('Could not fetch live GPS position. Please check location permissions.');
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -27,19 +50,22 @@ export const useMapController = () => {
             setUserGps(gps);
             setGpsStatus('Live GPS Tracking');
             setIsLocating(false);
+            setErrorMsg(null);
           },
           (err) => {
             if (!isMounted) return;
             setGpsStatus('Location Permission Denied');
             setIsLocating(false);
-            Alert.alert('Permission Denied', 'Location permission is required for live GPS tracking.');
+            // Fallback to Da Nang location if permission is not granted
+            setUserGps({ lat: VIETNAM_DEFAULT_LAT, lng: VIETNAM_DEFAULT_LNG, accuracy: 15 });
           }
         );
         locationSubscriptionRef.current = sub;
       } catch (err) {
         if (isMounted) {
-          setGpsStatus('GPS Unavailable');
+          setGpsStatus('GPS Initializing');
           setIsLocating(false);
+          setUserGps({ lat: VIETNAM_DEFAULT_LAT, lng: VIETNAM_DEFAULT_LNG, accuracy: 15 });
         }
       }
     };
@@ -55,97 +81,116 @@ export const useMapController = () => {
   }, []);
 
   useEffect(() => {
-    if (!isMapReady || !webViewRef.current || !userGps) return;
+    if (!webViewRef.current || !userGps) return;
 
     const shouldRecenter = !initialSyncRef.current;
     initialSyncRef.current = true;
 
     webViewRef.current.injectJavaScript(
-      `if (window.updateUserLocation) { window.updateUserLocation(${userGps.lat}, ${userGps.lng}, ${userGps.accuracy || 15}, ${shouldRecenter}); } true;`
+      `if (window.updateUserLocation) { window.updateUserLocation(${userGps.lat}, ${userGps.lng}, ${userGps.accuracy || 10}, ${shouldRecenter}); } true;`
     );
-  }, [isMapReady, userGps?.lat, userGps?.lng, userGps?.accuracy]);
+  }, [userGps?.lat, userGps?.lng, userGps?.accuracy]);
 
-  const handleSearchLocation = async () => {
-    if (!searchQuery || !searchQuery.trim()) {
-      Alert.alert('Search Error', 'Please enter a location name (e.g. Đà Nẵng, Hà Nội, Sapa).');
-      return;
+  const initLat = userGps?.lat || VIETNAM_DEFAULT_LAT;
+  const initLng = userGps?.lng || VIETNAM_DEFAULT_LNG;
+
+  const mapHtml = useMemo(() => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.0/mapbox-gl.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #map { height: 100%; width: 100%; margin: 0; padding: 0; background: #F6F8F5; touch-action: pan-x pan-y; }
+    .mapboxgl-map { font-family: system-ui, -apple-system, sans-serif; }
+
+    /* Live Blue Dot User Marker */
+    .user-dot-wrapper {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .user-dot-pulse {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.3);
+      animation: pulse-user 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse-user {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      50% { transform: scale(1.6); opacity: 0.2; }
+      100% { transform: scale(0.6); opacity: 0.9; }
+    }
+    .user-dot-core {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #2563EB;
+      border: 2.5px solid #FFFFFF;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.8);
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    mapboxgl.accessToken = '${MAPBOX_ACCESS_TOKEN.replace(/'/g, "\\'")}';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [${initLng}, ${initLat}],
+      zoom: 14,
+      attributionControl: false
+    });
+
+    var userMarker = null;
+
+    function createMarkerElement() {
+      var el = document.createElement('div');
+      el.className = 'user-dot-wrapper';
+      el.innerHTML = '<div class="user-dot-pulse"></div><div class="user-dot-core"></div>';
+      return el;
     }
 
-    setIsSearching(true);
-    try {
-      const result = await searchLocationChain(searchQuery);
-      if (result) {
-        setSearchResult(result);
-        if (webViewRef.current) {
-          webViewRef.current.injectJavaScript(
-            `if (window.placeRedMarker) { window.placeRedMarker(${result.lat}, ${result.lng}, ${JSON.stringify(result.displayName)}); } true;`
-          );
-        }
-        Alert.alert(
-          '📍 Location Found',
-          `Address: ${result.displayName}\nCoordinates: ${result.lat.toFixed(6)}, ${result.lng.toFixed(6)}\nFound via: ${result.source}`
-        );
+    window.updateUserLocation = function(lat, lng, accuracy, recenter) {
+      if (!map) return;
+      if (!userMarker) {
+        userMarker = new mapboxgl.Marker({ element: createMarkerElement() })
+          .setLngLat([lng, lat])
+          .addTo(map);
       } else {
-        Alert.alert('Location Not Found', `Could not find "${searchQuery}" via Android Geocoder, OSM Nominatim, or Komoot.`);
+        userMarker.setLngLat([lng, lat]);
       }
-    } catch (e) {
-      console.error('Map search error:', e);
-      Alert.alert('Search Error', 'Unable to search location.');
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleRecenterGps = () => {
-    if (webViewRef.current) {
-      webViewRef.current.injectJavaScript(`if (window.recenterUser) { window.recenterUser(); } true;`);
-    }
-  };
-
-  const handleZoomIn = () => {
-    if (webViewRef.current) {
-      webViewRef.current.injectJavaScript(`if (window.zoomInMap) { window.zoomInMap(); } true;`);
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (webViewRef.current) {
-      webViewRef.current.injectJavaScript(`if (window.zoomOutMap) { window.zoomOutMap(); } true;`);
-    }
-  };
-
-  const handleMapMessage = async (event) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === 'MAP_TAP') {
-        const rev = await reverseGeocodeChain(data.lat, data.lng);
-        const name = rev?.locationName || `Location (${data.lat.toFixed(4)}, ${data.lng.toFixed(4)})`;
-        setSearchResult({
-          lat: data.lat,
-          lng: data.lng,
-          displayName: name,
-          source: rev?.source || 'Map Tap'
-        });
+      if (recenter) {
+        map.flyTo({ center: [lng, lat], zoom: 15, duration: 1200 });
       }
-    } catch (e) {
-      // ignore
-    }
-  };
+    };
+
+    map.on('load', function() {
+      window.updateUserLocation(${initLat}, ${initLng}, 10, true);
+    });
+  </script>
+</body>
+</html>
+  `, [initLat, initLng]);
 
   return {
     userGps,
     gpsStatus,
     isLocating,
-    setIsMapReady,
-    searchQuery,
-    setSearchQuery,
-    isSearching,
-    searchResult,
+    errorMsg,
+    mapHtml,
     webViewRef,
-    handleSearchLocation,
-    handleRecenterGps,
-    handleZoomIn,
-    handleZoomOut,
-    handleMapMessage
+    handleGetLocation,
+    handleRecenterGps: handleGetLocation
   };
 };

@@ -12,16 +12,18 @@ import { useMapController } from '../../controllers/useMapController';
 
 export const MapView = () => {
   const {
-    location,
+    userGps,
+    gpsStatus,
+    isLocating,
     errorMsg,
     mapHtml,
-    isLocating,
+    webViewRef,
     handleGetLocation
   } = useMapController();
 
-  const latStr = location ? `${location.coords.latitude.toFixed(6)}°` : '16.047079°';
-  const lngStr = location ? `${location.coords.longitude.toFixed(6)}°` : '108.206230°';
-  const accuracyStr = location ? `±${Math.round(location.coords.accuracy || 5)}m` : '±5m';
+  const latStr = userGps ? `${userGps.lat.toFixed(6)}°` : '16.082230°';
+  const lngStr = userGps ? `${userGps.lng.toFixed(6)}°` : '108.235937°';
+  const accuracyStr = userGps ? `±${Math.round(userGps.accuracy || 5)}m` : '±5m';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,7 +36,7 @@ export const MapView = () => {
 
         <View style={styles.liveBadge}>
           <View style={styles.greenDot} />
-          <Text style={styles.liveBadgeText}>Live GPS Tracking</Text>
+          <Text style={styles.liveBadgeText}>{gpsStatus || 'Live GPS Tracking'}</Text>
         </View>
       </View>
 
@@ -46,6 +48,7 @@ export const MapView = () => {
           </View>
         ) : (
           <WebView
+            ref={webViewRef}
             originWhitelist={['*']}
             source={{ html: mapHtml }}
             style={styles.webview}
