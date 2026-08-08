@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHikeDetailController } from '../../controllers/useHikeDetailController';
 import { ObservationModal } from '../../components/ObservationModal';
 import { MiniMap } from '../../components/MiniMap';

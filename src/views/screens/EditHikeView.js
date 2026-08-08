@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEditHikeController } from '../../controllers/useEditHikeController';
 import { MiniMap } from '../../components/MiniMap';
 

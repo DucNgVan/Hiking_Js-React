@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHikes } from '../context/HikeContext';
 import { HikeCard } from '../components/HikeCard';
 
@@ -12,7 +13,7 @@ export const FavoritesScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <FlatList
         data={favoriteTrails}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => String(item.firebaseId || item.id || `fav-item-${index}`)}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View style={styles.header}>

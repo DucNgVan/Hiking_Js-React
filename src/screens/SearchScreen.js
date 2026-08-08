@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHikes } from '../context/HikeContext';
 import { HikeCard } from '../components/HikeCard';
 import { COLORS } from '../theme';
@@ -40,7 +41,7 @@ export const SearchScreen = ({ navigation }) => {
       {/* Results List */}
       <FlatList
         data={filteredTrails}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => String(item.firebaseId || item.id || `search-item-${index}`)}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <HikeCard

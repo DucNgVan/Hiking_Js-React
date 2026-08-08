@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHomeController } from '../../controllers/useHomeController';
 import { HikeCard } from '../../components/HikeCard';
 import { COLORS } from '../../theme';
@@ -75,7 +76,7 @@ export const HomeView = ({ navigation }) => {
       {/* Hikes List */}
       <FlatList
         data={filteredTrails}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => String(item.firebaseId || item.id || `hike-item-${index}`)}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <HikeCard
