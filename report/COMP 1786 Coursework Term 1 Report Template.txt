@@ -1,0 +1,200 @@
+COMP1786 – Mobile Application Design and Development Report
+
+Student Name
+
+Student ID
+
+
+
+Table of Contents
+1.	BRIEF STATEMENT OF FEATURES YOU HAVE IMPLEMENTED (2%)	2
+2.	SECTION 2 - SCREEN SHOTS/DESIGN (2%)	3
+3.	SECTION 3 - REFLECTION (4%)	3
+4.	SECTION 4 - EVALUATION (10%):	4
+5.	SECTION 5 – CODE (2%)	5
+
+
+	•	BRIEF STATEMENT OF FEATURES YOU HAVE IMPLEMENTED (2%)
+
+Feature
+Status
+Your Comments
+Functionality A
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality B
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality C
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality D
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality E
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality F
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+Functionality G
+Fully completed ☐   
+Partially completed ☐    
+Having bugs/Not working ☐
+Not implemented ☐
+
+
+Link to recorded video (if you record your application before submitting the report)
+The recorded video will demonstrate the implemented product. It is roughly 15 minutes. Enter the link into the below box
+
+
+
+	•	SECTION 2 - SCREEN SHOTS/DESIGN (2%) 
+Screen shots demonstrating each of the features that you have implemented. Give captions or annotations to explain which features are being demonstrated.
+
+
+
+
+
+
+
+	•	SECTION 3 - REFLECTION (4%) 
+Write a reflection (approximately 350 words) on how the app was developed. Discuss lessons learnt, what you think went well and what you think could have been improved and how.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	•	SECTION 4 - EVALUATION (10%):
+An evaluation of your app(s) (8%). Write between 700 to 1000 words evaluating the app(s) that you have produced. Be specific and justify any statements you make. Your evaluation should include, but need not be limited to, the following aspects of your app:
+i. Human computer interaction
+ii. Security
+iii. Ability of the app to run on a range of screen sizes and how this could be improved
+iv. Changes that would need to be made in order for the app(s) to be deployed for live use
+v. Others
+
+
+English Proficiency + report format (2%) – marks will be allocated to the level of language used in the individual report, including correct spelling and use of grammar
+
+<Use proper references to define criteria and evaluate>
+Example: 
+Human computer interaction
+Criteria
+Description
+Evaluation
+Status
+Reference
+Usability
+Measures how efficiently users can complete key tasks and how intuitive the interface is.
+Users completed 90% of test tasks without external help. Navigation and layout were clear.
+Meet
+Nielsen, J. (1993). Usability Engineering. Academic Press.
+User Satisfaction
+Measures how enjoyable and comfortable users feel while using the system.
+Survey score 4.1/5; positive feedback on interface aesthetics, but some requests for dark mode.
+Partially Meet
+ISO 9241-210:2019. Human-centred design for interactive systems.
+Error Prevention & Recovery
+Determines how effectively the system prevents user errors and helps users recover from them.
+Basic validation and undo functions present; some unclear error messages remain.
+Not Meet
+Shneiderman, B. (2010). Designing the User Interface. Pearson.
+
+
+
+
+
+
+
+
+
+
+	•	 SECTION 5 – CODE (2%)
+Code listing of any code files you have written. You do not need to include generated code. Please clearly label the code, so it indicates the source file and programming language.
+
+<Include the folder structure figure with brief explanation for both Android Java and React Native. Then, include the important source code of the project with proper formatting and explanation> 
+Folder structure example:
+ 1. MyReactNativeApp/
+ 2. ├── android/
+ 3. ├── ios/
+ 4. ├── src/
+ 5. │   ├── assets/            # images, fonts, etc.
+ 6. │   ├── components/        # reusable UI parts
+ 7. │   ├── screens/           # app screens (Home, Login, etc.)
+ 8. │   ├── navigation/        # navigation setup
+ 9. │   ├── services/          # API or helper functions
+10. │   └── App.js             # main app component
+11. ├── index.js               # entry point
+12. ├── package.json
+13. ├── babel.config.js
+14. └── metro.config.js
+
+Code example:
+App.js: Provide the overview
+ 1. // src/App.js
+ 2. import React from 'react';
+ 3. import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+ 4.  
+ 5. const App = () => {
+ 6.   return (
+ 7.     <SafeAreaView style={styles.container}>
+ 8.       <View>
+ 9.         <Text style={styles.title}>Welcome to MyReactNativeApp!</Text>
+10.         <Text style={styles.subtitle}>This is your first React Native screen 🚀</Text>
+11.       </View>
+12.     </SafeAreaView>
+13.   );
+14. };
+15.  
+16. export default App;
+17.  
+18. const styles = StyleSheet.create({
+19.   container: {
+20.     flex: 1,
+21.     justifyContent: 'center',
+22.     alignItems: 'center',
+23.     backgroundColor: '#F5F5F5',
+24.   },
+25.   title: {
+26.     fontSize: 24,
+27.     fontWeight: 'bold',
+28.     color: '#333',
+29.   },
+30.   subtitle: {
+31.     fontSize: 16,
+32.     color: '#666',
+33.     marginTop: 8,
+34.   },
+35. });
+
+

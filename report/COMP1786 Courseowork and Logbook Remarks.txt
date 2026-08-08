@@ -1,0 +1,55 @@
+Logbook 
+Task
+Description
+Weighting (%)
+1) Simple Calculator App (Android Java)
+Develop a calculator that performs addition, subtraction, multiplication, and division for two numbers. The app must have a graphical user interface (GUI), validate user input to prevent errors, and use themes, styles, and resource files. 
+30%
+2) Image Viewer App (Android Java)
+Create an application that displays images one at a time from the app's internal resources. The interface must include "forward" and "backward" buttons to allow users to navigate through the collection of images. The images should be stored in the /res folder
+30%
+3) Contact Database App Extension (Android Java)
+Extend the "ContactDatabase" app to allow users to assign a profile image/avatar to each contact. The images should be stored in the Android resources (/res folder), and the app should display the contact list with their avatars, likely using a RecyclerView. 
+40%
+4) Report
+Use the provided template to write report for each Task
+
+Coursework
+Prototype: hike-logbook-spec
+Task
+Description
+Weighting (%)
+Build Android Java Application with below features
+a) Enter Hike Details (Android Java)
+Create a user interface (GUI) to input hike details. This must include required fields (Name, Location, Date, Parking, Length, Difficulty) and optional fields (Description, plus two custom fields). The application must validate input, show error messages for missing required fields, and display a confirmation screen allowing users to review and edit their entries.
+10%
+b) Manage Hike Data (Android Java)
+Implement functionality to store all hike details in a local SQLite database. Users must be able to view a list of all hikes, select a hike to edit its details, delete an individual hike, and have an option to delete all hike records from the database (reset).
+15%
+c) Add Hike Observations (Android Java)
+Allow users to add one or more observations to a specific hike. Each observation requires a description and time (defaulting to the current time) and can include optional comments. This data must be stored in the SQLite database, and users must be able to view, edit, and delete observations for any given hike.
+15%
+d) Search Functionality 
+(Android Java)
+Implement a search feature. The basic search should find a hike by its name. The advanced search should allow users to find hikes based on a combination of name, location, length, and/or date. Users must be able to select a hike from the search results to view its full details.
+10%
+Build Cross-Platform Application with React Native (or any other cross-platform like Xamarin/Flutter) with below features
+e) Cross-Platform Prototype (React Native)
+Develop a cross-platform prototype of the application using React Native (or any cross-platform framework like Xamarin/Flutter). This task specifically involves implementing the "Enter Hike Details" feature (Task a) in the chosen framework.
+10%
+f) Cross-Platform Persistence (React Native)
+Implement data storage for the cross-platform prototype. This task specifically involves implementing the "Manage Hike Data" feature (Task b) using SQLite and React Native (or any cross-platform framework like Xamarin/Flutter)
+10%
+Extend the Android or the cross-platform with more features
+g) Additional Features
+(Optional Extension) Add creative and advanced features to either the Android or cross-platform version of the app. Examples include adding photos from the camera, using GPS for automatic location, displaying locations on a map, or integrating an external web service.
+10%
+Report
+Use the provided template
+Make sure to include the video demo
+IMPORTANT: Live Demo with Lecturer is a must. You will receive 0 if not doing the demo
+20%
+TOTAL
+
+100%
+
