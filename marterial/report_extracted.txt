@@ -1,0 +1,355 @@
+University of Greenwich
+COMP1786 – Mobile Application Design and Development
+Practical Coursework 1 – Individual Report
+M-Hike: Hiker Management Application
+Student Name
+Nguyen Van Duc
+Student ID
+001419590
+Course Leader
+Dr Tuan Nguyen
+Lecturer Name:
+Nguyen The Nghia
+Submission Date
+[Insert submission date]
+⚠ ACTION REQUIRED BEFORE SUBMISSION
+•  Replace the placeholder Student ID and submission date above with your real details.
+•  This report was drafted with AI assistance based on the screenshots and prior draft you supplied. Read every section critically, correct any technical detail that does not match your actual, final source code, and remove every yellow 'ACTION REQUIRED' box (including this one) before you submit — they are working notes for you, not part of the final report.
+Table of Contents
+Table of Contents1
+Section 1 — Brief Statement of Features You Have Implemented (2%)1
+Section 2 — Screen Shots / Design (2%)1
+2.1 Design Diagrams1
+2.2 Functionality A & B: Authentication and Hike Management1
+2.3 Functionality A: Enter Hike Details & Confirmation1
+2.4 Functionality C: Hike Observations1
+2.5 Functionality D: Search & Filtering1
+2.6 Functionality G: Live GPS Tracking and Map Integration1
+2.7 Functionality B (continued): Profile and Data Management1
+2.8 Functionality E & F: React Native Cross-Platform Prototype1
+Section 3 — Reflection (4%)1
+Section 4 — Evaluation (10%)1
+4.1 Human–Computer Interaction (HCI)1
+4.2 Security1
+4.3 Ability to Run on a Range of Screen Sizes1
+4.4 Changes Required for Live Deployment1
+4.5 Other: Native Library Forward-Compatibility1
+Section 5 — Code (2%)1
+5.1 Android Java Application1
+5.2 React Native Cross-Platform Application1
+References1
+(In Microsoft Word, right-click the table above and choose 'Update Field' → 'Update entire table' after editing, so page numbers are correct.)
+Section 1 — Brief Statement of Features You Have Implemented (2%)
+Table 1 below summarises, feature by feature, the functionality implemented for the M-Hike application, cross-referenced against the COMP1786 coursework specification (Functionalities A–G).
+Feature
+Status
+Your Comments
+Functionality A Enter Hike Details (Android Java)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+Implemented in AddHikeActivity.java. Required fields (name, location, date, parking, length, difficulty) are validated on submission; two custom optional fields (weather condition, header image) were added. A Material 3 'Review Your Adventure' confirmation screen lets the user check and edit entries before saving.
+Functionality B Manage Hike Data (Android Java)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+Full CRUD supported through FirestoreHelper.java and HikeAdapter.java, with the SQLite/Firestore data cached and displayed in a RecyclerView. Users can list, edit and delete individual hikes, and reset all data from the Profile screen.
+Functionality C Add Hike Observations (Android Java)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+Implemented in AddObservationActivity.java and ObservationAdapter.java. Observations require a description and automatically capture the current timestamp; comments are optional. Multiple observations per hike are supported, with view/edit/delete.
+Functionality D Search (Android Java)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+Implemented in SearchFragment.java using a TextWatcher for live filtering by name, with advanced filtering by location and date also supported. Selecting a result opens the full hike detail screen.
+Functionality E Cross-Platform Prototype (React Native)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+AddHikeScreen.js reproduces the 'Enter Hike Details' form (Task A) in React Native/Expo, including client-side validation and GPS auto-fill.
+Functionality F Cross-Platform Persistence (React Native)
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+HikeContext.js uses the React Context API together with AsyncStorage to persist and retrieve hike records locally on the cross-platform build (Task B).
+Functionality G Additional Features
+☑ Fully completed
+☐ Partially completed
+☐ Having bugs / Not working
+☐ Not implemented
+FusedLocationProviderClient for one-tap automatic GPS capture, a Mapbox Maps SDK v11 live tracker with a custom dual-layer marker pin, and a multi-tier geocoding fallback chain (Android Geocoder → OpenStreetMap Nominatim → Komoot Photon).
+Link to recorded video demonstration
+[Insert YouTube / Google Drive link here — approximately 15 minutes]
+⚠ ACTION REQUIRED BEFORE SUBMISSION
+•  Tick the correct checkbox for each functionality only after you have re-tested that feature yourself on a real or emulated device — do not leave every row marked 'Fully completed' by default.
+•  Record and upload your 15-minute demonstration video, then paste the link in the box above. A live demonstration with the lecturer is also required by the coursework brief — remember to book/attend it.
+Section 2 — Screen Shots / Design (2%)
+This section presents the design diagrams that define the scope, structure and behaviour of M-Hike, followed by annotated screenshots evidencing each implemented feature.
+2.1 Design Diagrams
+The five diagrams below (Figures 1–5) were produced from the application's described architecture and screen inventory to document the system design. Please compare each one against your finished source code and adjust any labels, entities or navigation paths that no longer match before you submit; replace a diagram completely with your own drawing.io / Lucidchart / Draw.io version if you prefer.
+2.1.1 Use Case Diagram — defines the functional scope
+Figure 1: Use Case Diagram. A single 'Hiker' actor interacts with the ten primary use cases of M-Hike. 'Enter Hike Details' includes the 'Auto-fill Location via GPS' use case, which in turn uses 'Track Live GPS Location'; 'Add Hike Observation' extends 'View/Edit/Delete Hike'.
+2.1.2 System Architecture Diagram — defines technology and infrastructure
+Figure 2: System Architecture Diagram. The presentation layer comprises the native Android (Java) application and the React Native cross-platform prototype. Both communicate through helper/wrapper classes with Firebase Authentication, Cloud Firestore, on-device local storage, and the Mapbox Maps SDK / Android Fused Location Provider for geolocation.
+2.1.3 Entity–Relationship Diagram (ERD) — database design
+Figure 3: Entity–Relationship Diagram. A USER owns one-to-many HIKE records; each HIKE has zero-to-many OBSERVATION records. Although Cloud Firestore is a NoSQL document store, the same one-to-many cardinalities are enforced in the collection/sub-collection structure and were mirrored in the local SQLite schema used for the cross-platform prototype.
+2.1.4 Sequence Diagram — complex feature (GPS-assisted hike creation)
+Figure 4: Sequence Diagram for automatic GPS-assisted hike creation and save. This traces the interaction between the hiker, the AddHikeActivity UI, the FusedLocationProviderClient, the geocoding fallback chain, the Mapbox map, the confirmation dialog and the Firestore persistence layer — the most technically complex feature in the application.
+2.1.5 Screen Flow Diagram — UI/UX navigation design
+Figure 5: Screen Flow Diagram. Shows the navigation paths between authentication, the home dashboard, hike creation and confirmation, hike detail and observations, search, live GPS tracking, and profile/data-management screens.
+2.2 Functionality A & B: Authentication and Hike Management
+Figures 6 and 7 show the sign-in and account-creation screens; Figures 8 and 9 show the home dashboard, which lists all stored hikes and supports filtering by difficulty (Functionality B).
+Figure 6: Sign In screen.
+Figure 7: Create Account (Sign Up) screen.
+Figure 8: Home dashboard — 'All' filter, showing all stored hikes (Functionality B).
+Figure 9: Home dashboard — 'Hard' difficulty filter applied.
+2.3 Functionality A: Enter Hike Details & Confirmation
+Figures 10–12 show the three-step data-entry flow: location capture and GPS, trip-detail entry with the custom fields, and the confirmation dialog required by the specification before data is committed.
+Figure 10: 'Plan New Hike Adventure' — Location & GPS step, including reverse-geocoded address and the red marker pin on the Mapbox map.
+Figure 11: Trip Details step — required fields (date, distance, duration, difficulty) plus the two custom fields, Weather Condition and Header Image.
+Figure 12: 'Review Your Adventure' confirmation dialog, allowing the user to verify all entered details and either confirm and save, or go back and edit.
+2.4 Functionality C: Hike Observations
+2.5 Functionality D: Search & Filtering
+Figure 15: Search Hikes screen, live-filtering results by name as the user types ('tr' matches 'Langbiang Mountain Trail' and 'Ta Nang – Phan Dung Trekking').
+2.6 Functionality G: Live GPS Tracking and Map Integration
+Figure 16: Live GPS Tracker screen, showing the device's real-time coordinates, accuracy radius, and current position on the Mapbox map.
+2.7 Functionality B (continued): Profile and Data Management
+Figure 17: My Profile screen, showing personal statistics (hikes, distance, time) and the data-management controls used to reset all stored hike data.
+2.8 Functionality E & F: React Native Cross-Platform Prototype
+Figure 18: 'Plan New Hike Adventure' screen in the React Native cross-platform prototype, reproducing the location, GPS and trip-detail entry flow of Functionality A using Context API/AsyncStorage persistence (Functionality F).
+⚠ ACTION REQUIRED BEFORE SUBMISSION
+•  Add at least one further React Native screenshot showing the saved hike list / persisted data (Functionality F evidence), since only the entry-form screen was supplied.
+•  If you implemented Functionality B or D inside the React Native app as well, add matching screenshots and captions here.
+•  Renumber all figure captions once you insert the missing images so the numbering stays sequential.
+Section 3 — Reflection (4%)
+Developing M-Hike across a native Android (Java) application and a React Native cross-platform prototype was a substantial exercise in applied mobile software engineering. The Android codebase was organised around the Model–View–Controller pattern, with a dedicated helper class, FirestoreHelper.java, decoupling user-interface logic from Cloud Firestore persistence in a manner consistent with the repository pattern described by Gamma et al. (1994). This separation made the Activities and Fragments considerably easier to test and to reason about individually.
+One achievement I am satisfied with is the integration of Firebase Authentication with Cloud Firestore for real-time, bidirectional data synchronisation, and the creative extension built around the Mapbox Maps SDK v11. To keep the custom map marker crisp across the wide range of Android screen densities, I combined a base CircleAnnotation with a vector PointAnnotation icon into a single dual-layer pin, and I built a three-tier geocoding fallback chain — the Android system Geocoder, followed by OpenStreetMap Nominatim, followed by Komoot Photon — so that address resolution remains reliable even when one provider is rate-limited or unavailable.
+The most significant technical challenge was a touch-handling conflict: placing an interactive Mapbox MapView inside a NestedScrollView caused the parent container to intercept vertical swipe gestures intended for the map. I resolved this by calling v.getParent().requestDisallowInterceptTouchEvent(true) on MotionEvent.ACTION_DOWN, giving the map exclusive control of panning gestures. Debugging this issue taught me to read touch-event propagation in Android far more carefully than before.
+If I were to rebuild the application, I would migrate the Android architecture from MVC to Model–View–ViewModel, using Jetpack's StateFlow and LiveData to remove callback boilerplate and improve lifecycle safety, and I would add an offline map-tile cache through the Mapbox Offline Manager so the app remains genuinely useful to hikers in areas without reliable connectivity. Overall, the project strengthened my understanding of layered architecture, third-party SDK integration, and the trade-offs between native and cross-platform development.
+(Word count: approximately 310 words.)
+Section 4 — Evaluation (10%)
+Evaluating a mobile application requires a systematic analysis of usability, security, adaptability and deployment readiness rather than a subjective impression of the finished product. A well-implemented feature list is not, by itself, evidence of a well-engineered application: the same functionality can be delivered through an interface that is confusing, insecure, or unable to cope with the diversity of Android hardware in real use. The five subsections below therefore assess M-Hike against established human–computer interaction (HCI) criteria, mobile security standards, cross-device responsiveness, live-deployment requirements, and one additional technical consideration specific to the libraries used in this project, in each case using authoritative external references to justify the judgement reached rather than relying on unsupported opinion.
+4.1 Human–Computer Interaction (HCI)
+M-Hike follows Google's Material Design 3 guidelines throughout, using an 8dp spacing grid, elevated cards, colour-coded difficulty chips and consistent iconography to establish a predictable visual hierarchy across every screen (Google, 2024). Because the target users are hikers who may be reviewing or entering data outdoors, in bright sunlight or with limited attention available, the interface deliberately favours large touch targets, high-contrast text and a single, unambiguous primary action per screen (for example, 'Save Hike' or 'Confirm & Save') rather than dense menus of secondary options. Table 2 evaluates the interface against three widely used HCI criteria drawn from the usability and human-centred design literature.
+Criteria
+Description
+Evaluation in M-Hike
+Status
+Reference
+Usability
+Measures how efficiently users can complete key tasks and how intuitive the interface is.
+The 'Use Current GPS Location' button and address auto-complete remove almost all manual typing from hike creation, and the bottom-navigation bar keeps every core task (Home, Live GPS, Search, Profile) one tap away, in line with Nielsen's heuristic of minimising user memory load.
+Meet
+Nielsen, J. (1994) 10 Usability Heuristics for User Interface Design. Nielsen Norman Group.
+User Satisfaction
+Measures how enjoyable and comfortable users feel while using the system.
+A consistent outdoor-themed colour palette (forest green primary, red accent for markers/alerts) and legible Material typography were used throughout; this aligns with ISO 9241-210's requirement that a system's aesthetic and interaction qualities support user satisfaction, not only task completion.
+Meet
+ISO (2019) ISO 9241-210:2019 Ergonomics of human-system interaction — Part 210: Human-centred design for interactive systems. Geneva: International Organization for Standardization.
+Error Prevention & Recovery
+Determines how effectively the system prevents user errors and helps users recover from them.
+Required-field validation blocks empty submissions with inline error messages, and the mandatory 'Review Your Adventure' confirmation dialog gives users a final opportunity to correct mistakes before data is written to Firestore — directly reflecting Shneiderman's 'offer simple error handling' rule.
+Meet
+Shneiderman, B. et al. (2016) Designing the User Interface: Strategies for Effective Human-Computer Interaction. 6th ed. Boston: Pearson.
+4.2 Security
+Security is critical for an application that stores personal profile data and precise geolocation, since a hike record combined with a timestamp can reveal where a specific individual was at a specific moment. Rather than evaluate security informally, Table 3 maps M-Hike's current controls onto the OWASP Mobile Application Security Verification Standard (MASVS), the industry-recognised baseline used by developers, testers and platform providers to assess mobile app security across Android and iOS (OWASP, 2024). Using a named standard, rather than an ad-hoc checklist, makes the evaluation reproducible and allows the same table to be reused as a regression checklist in future development cycles.
+Criteria
+Description
+Evaluation in M-Hike
+Status
+Reference
+Authentication
+Verifies that only the legitimate account owner can access their data (MASVS-AUTH).
+Firebase Authentication manages sign-up and sign-in; passwords are salted and hashed server-side and are never stored or logged in plain text by the client.
+Meet
+OWASP (2024) Mobile Application Security Verification Standard (MASVS) v2.1.0. OWASP Foundation.
+Network Communication
+Verifies that data in transit is protected from interception (MASVS-NETWORK).
+All traffic to Firebase and to the Mapbox Geocoding API is transmitted over HTTPS/TLS by default through the official SDKs, protecting hike locations from packet-sniffing.
+Meet
+OWASP (2024) Mobile Application Security Verification Standard (MASVS) v2.1.0. OWASP Foundation.
+Data Storage & Access Control
+Verifies that sensitive data is only accessible to its owner (MASVS-STORAGE).
+Firestore Security Rules should restrict each document so that request.auth.uid must equal the hike's creatorId before a read/write is permitted; this was configured for the project but should be re-verified in the Firebase console before deployment.
+Partially Meet
+Google (2024) Get started with Cloud Firestore Security Rules. Firebase Documentation.
+Code Quality & Secrets
+Verifies that API keys and build artefacts are not trivially extractable (MASVS-CODE).
+The Mapbox access token and Firebase configuration currently ship inside the debug build; for release, these must be moved into gradle.properties/Secrets Gradle Plugin and the app must be built with R8/ProGuard minification enabled.
+Not Yet Meet (planned)
+OWASP (2024) Mobile Application Security Verification Standard (MASVS) v2.1.0. OWASP Foundation.
+4.3 Ability to Run on a Range of Screen Sizes
+Android devices span an unusually wide range of screen sizes and pixel densities, and the official Android documentation recommends density-independent units and flexible layout containers to accommodate this variation (Google, 2024a). M-Hike was built accordingly:
+Density-independent units — all dimensions are defined in dp and all typography in sp, so layouts respect the user's OS-level font-scaling accessibility settings without breaking, and text does not become illegible on high-density or low-density panels.
+Flexible layout managers — ConstraintLayout and CoordinatorLayout reposition and resize components relative to the available width and height, avoiding clipping or overlap on both small (4.7-inch) budget phones and large (6.7-inch) flagship phones tested during development.
+Vector graphics — icons and the custom map marker are XML vector drawables rather than fixed-resolution bitmaps, so they remain sharp on high-density (xxxhdpi) displays without inflating APK size or requiring multiple exported image sizes.
+Scrollable containers — every data-entry and list screen is wrapped in a scrolling container, so content that does not fit a shorter screen remains reachable rather than being clipped off-screen.
+Proposed improvement: the application has not yet been optimised for tablets or foldable devices. Introducing a smallest-width resource qualifier (e.g. layout-sw600dp) to deliver a two-pane master–detail layout — a hike list on one side and the selected hike's details, map and observations on the other — as recommended in Google's large-screen guidance (Google, 2024b), would make far better use of the additional horizontal space than simply stretching the existing phone layout across a bigger canvas. Manual testing on only two physical devices during development is also a limitation: before deployment the layout should be verified on the Android Emulator's full range of reference devices, from small 4-inch phones to 12-inch tablets, to catch any remaining clipping or overlap issues.
+4.4 Changes Required for Live Deployment
+Moving M-Hike from an academic prototype to a production release on the Google Play Store would require several changes beyond the current implementation:
+API key protection — the Mapbox token and Firebase configuration must be obfuscated/restricted (API key rotation, Android package-name and SHA-1 restrictions in the Google Cloud console) to prevent quota theft.
+Build hardening — enabling R8/ProGuard minification and resource shrinking in the release build variant to reduce APK size and deter reverse engineering.
+Monitoring — integrating Firebase Crashlytics and Google Analytics for Firebase to capture unhandled exceptions and usage metrics once real users are involved.
+Formal security review — completing a full OWASP MASVS checklist and, ideally, a third-party penetration test before handling live user location data at scale.
+4.5 Other: Native Library Forward-Compatibility
+Additional technical evaluation — 16 KB page-size compatibility: recent Android releases (Android 15/16) enforce 16 KB memory-page alignment for native shared libraries; applications built against older native (.so) binaries can crash immediately on launch on this newer hardware, even though the same build runs correctly on older devices. M-Hike's Mapbox dependency was compiled against the NDK r27 binaries, which are already aligned to this requirement, so the application is forward-compatible with next-generation Android devices without further changes (Google, 2024c). This is a useful example of a small, easily overlooked dependency-version decision having a disproportionate effect on long-term stability, and it is exactly the kind of regression that conventional functional testing on existing devices would not surface without deliberately targeting the newest OS images in the test matrix. It also illustrates a broader evaluation point: technical debt in a student project is not only about features left unbuilt, but about dependencies whose assumptions quietly go out of date as the underlying platform evolves, which is why version-pinning decisions were documented rather than left implicit in the build configuration.
+(Evaluation word count, excluding tables: approximately 911 words.)
+Section 5 — Code (2%)
+This section lists the folder structure of both applications and the source-code listings judged most representative of the coursework's technical depth. Generated or boilerplate files (Gradle/Expo scaffolding, resource XML) are omitted; only original application logic is shown, consistent with the coursework instruction to exclude generated code.
+5.1 Android Java Application
+Folder Structure
+app/src/main/java/com/example/hiking_application_coursework/
+├── activities/                        # Main Activity screens
+│   ├── MainActivity.java              # Bottom-navigation container
+│   ├── LoginActivity.java             # Firebase Auth sign-in
+│   ├── RegisterActivity.java          # Sign-up & Firestore profile creation
+│   ├── AddHikeActivity.java           # Hike creation, GPS & Mapbox interaction
+│   ├── HikeDetailActivity.java        # Hike detail view & map location
+│   └── AddObservationActivity.java    # Field observation logging
+├── adapters/                          # RecyclerView adapters
+│   ├── HikeAdapter.java
+│   └── ObservationAdapter.java
+├── fragments/                         # Bottom-nav tab fragments
+│   ├── HomeFragment.java              # Dashboard hike list
+│   ├── SearchFragment.java            # Multi-parameter hike search
+│   ├── MapFragment.java               # Live user GPS tracking map
+│   └── ProfileFragment.java           # User profile & data management
+├── helpers/
+│   └── FirestoreHelper.java           # Firestore CRUD wrapper
+└── models/                            # POJO data models
+    ├── Hike.java
+    ├── Observation.java
+    └── User.java
+Listing 5.1 — AddHikeActivity.java (touch-intercept handling & dual-layer marker pin)
+Overview: resolves the NestedScrollView/Mapbox touch conflict described in Section 3, and renders the custom two-layer red marker used for GPS confirmation.
+// Touch listener: stop the parent NestedScrollView intercepting swipe
+// gestures meant for the embedded Mapbox map (see Section 3, Reflection).
+previewMap.setOnTouchListener((v, event) -> {
+    switch (event.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+        case MotionEvent.ACTION_MOVE:
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            break;
+        case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_CANCEL:
+            v.getParent().requestDisallowInterceptTouchEvent(false);
+            break;
+    }
+    return false;
+});
+// Dual-layer red marker pin: a base circle annotation plus a vector
+// point-annotation icon, rendered together for a crisp, on-brand pin.
+private void updatePreviewMarker() {
+    try {
+        double lat = Double.parseDouble(editLat.getText().toString());
+        double lng = Double.parseDouble(editLng.getText().toString());
+        Point p = Point.fromLngLat(lng, lat);
+        previewMap.getMapboxMap().setCamera(
+            new CameraOptions.Builder().center(p).zoom(14.0).build());
+        AnnotationPlugin annotationApi = (AnnotationPlugin)
+            previewMap.getPlugin(Plugin.MAPBOX_ANNOTATION_PLUGIN_ID);
+        // Layer 1: vibrant red target circle
+        circleAnnotationManager.deleteAll();
+        circleAnnotationManager.create(new CircleAnnotationOptions()
+            .withPoint(p).withCircleRadius(12.0)
+            .withCircleColor("#FF1744").withCircleStrokeWidth(3.0)
+            .withCircleStrokeColor("#FFFFFF"));
+        // Layer 2: vector red pin icon
+        pointAnnotationManager.deleteAll();
+        Bitmap bitmap = getBitmapFromDrawableRes(R.drawable.ic_red_marker);
+        pointAnnotationManager.create(new PointAnnotationOptions()
+            .withPoint(p).withIconImage(bitmap)
+            .withIconSize(1.2).withIconAnchor(IconAnchor.BOTTOM));
+    } catch (Exception ignored) { }
+}
+Listing 5.2 — FirestoreHelper.java (data persistence wrapper)
+Overview: encapsulates Cloud Firestore CRUD operations so that Activities and Fragments never talk to Firestore directly, keeping the UI layer testable.
+public class FirestoreHelper {
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    public void insertHike(Hike hike, DataStatus status) {
+        db.collection("hikes")
+          .add(hike)
+          .addOnSuccessListener(documentReference -> {
+              hike.setFirebaseId(documentReference.getId());
+              db.collection("hikes")
+                .document(documentReference.getId())
+                .set(hike);
+              status.dataIsInserted();
+          })
+          .addOnFailureListener(e ->
+              Log.e("Firestore", "Error adding hike", e));
+    }
+}
+5.2 React Native Cross-Platform Application
+Folder Structure
+hiking_application_coursework_react/
+├── assets/                            # App images & icons
+├── src/
+│   ├── context/
+│   │   ├── AuthContext.js             # Authentication state management
+│   │   └── HikeContext.js             # Local persistence & hike state
+│   ├── screens/
+│   │   ├── HomeScreen.js              # Hike list dashboard
+│   │   ├── AddHikeScreen.js           # Hike details input & validation
+│   │   ├── EditHikeScreen.js          # Edit hike screen
+│   │   ├── MapScreen.js               # Live GPS tracking screen
+│   │   ├── SearchScreen.js            # Multi-parameter search screen
+│   │   └── ProfileScreen.js           # Profile screen
+│   └── theme.js                       # UI colour tokens & styles
+├── App.js                             # Root navigation container
+├── app.json                           # Expo configuration
+└── package.json                       # Project dependencies
+Listing 5.3 — HikeContext.js (React Native persistence)
+Overview: uses the React Context API together with AsyncStorage to persist and rehydrate hike records on the cross-platform build, implementing Functionality F.
+import React, { createContext, useState, useContext, useEffect }
+  from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const HikeContext = createContext();
+export const HikeProvider = ({ children }) => {
+  const [hikes, setHikes] = useState([]);
+  useEffect(() => { loadHikes(); }, []);
+  const loadHikes = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@hikes');
+      if (stored) setHikes(JSON.parse(stored));
+    } catch (e) {
+      console.error('Failed to load hikes from storage', e);
+    }
+  };
+  const addHike = async (newHike) => {
+    const updated = [newHike, ...hikes];
+    setHikes(updated);
+    await AsyncStorage.setItem('@hikes', JSON.stringify(updated));
+  };
+  return (
+    <HikeContext.Provider value={{ hikes, addHike }}>
+      {children}
+    </HikeContext.Provider>
+  );
+};
+export const useHikes = () => useContext(HikeContext);
+⚠ ACTION REQUIRED BEFORE SUBMISSION
+•  These listings were reconstructed from the description in your original draft report — open your real project and paste the current, final version of each file (or add further listings such as AddObservationActivity.java, SearchFragment.java, and your Firestore Security Rules) so Section 5 matches your submitted code exactly.
+•  Clearly label the programming language of every listing you add (Java / JavaScript / XML) as the coursework brief requires.
+References
+Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994) Design Patterns: Elements of Reusable Object-Oriented Software. Reading, MA: Addison-Wesley.
+Google (2024a) Support different screen sizes. Android Developers Documentation. Available at: https://developer.android.com/training/multiscreen/screensizes (Accessed: 8 August 2026).
+Google (2024b) Large screens overview: adaptive layouts. Android Developers Documentation. Available at: https://developer.android.com/guide/topics/large-screens/get-started-with-large-screens (Accessed: 8 August 2026).
+Google (2024c) NDK 16 KB page size support. Android Developers Documentation. Available at: https://developer.android.com/guide/practices/page-sizes (Accessed: 8 August 2026).
+Google (2024) Material Design 3. Available at: https://m3.material.io (Accessed: 8 August 2026).
+Google (2024) Get started with Cloud Firestore Security Rules. Firebase Documentation. Available at: https://firebase.google.com/docs/firestore/security/get-started (Accessed: 8 August 2026).
+Google (2024) FusedLocationProviderClient. Android Developers Documentation. Available at: https://developer.android.com/reference/com/google/android/gms/location/FusedLocationProviderClient (Accessed: 8 August 2026).
+ISO (2019) ISO 9241-210:2019 Ergonomics of human-system interaction — Part 210: Human-centred design for interactive systems. Geneva: International Organization for Standardization.
+Jošt, G. and Taneski, V. (2025) 'State-of-the-art cross-platform mobile application development frameworks: a comparative study of market and developer trends', Informatics, 12(2), 45. https://doi.org/10.3390/informatics12020045.
+Nielsen, J. (1994) 10 Usability Heuristics for User Interface Design. Nielsen Norman Group. Available at: https://www.nngroup.com/articles/ten-usability-heuristics/ (Accessed: 8 August 2026).
+OWASP (2024) Mobile Application Security Verification Standard (MASVS) v2.1.0. OWASP Foundation. Available at: https://mas.owasp.org/MASVS/ (Accessed: 8 August 2026).
+Shneiderman, B., Plaisant, C., Cohen, M., Jacobs, S., Elmqvist, N. and Diakopoulos, N. (2016) Designing the User Interface: Strategies for Effective Human-Computer Interaction. 6th edn. Boston: Pearson.
+You, D. and Hu, M. (2021) 'A comparative study of cross-platform mobile application development', Proceedings of the 12th Annual Conference of Computing and Information Technology Research and Education New Zealand (CITRENZ) & 34th Annual Conference of NACCQ, Wellington, 14–16 July.
