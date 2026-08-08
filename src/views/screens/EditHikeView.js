@@ -32,185 +32,299 @@ export const EditHikeView = ({ route, navigation }) => {
   if (!trail) {
     return (
       <View style={styles.container}>
-        <Text style={styles.screenTitle}>Hike Record Not Found</Text>
+        <Text style={styles.sectionTitle}>Hike Record Not Found</Text>
       </View>
     );
   }
 
+  const difficultyOptions = ['Easy', 'Medium', 'Hard'];
+  const weatherOptions = ['Sunny & Breezy', 'Rainy', 'Cloudy', 'Cool', 'Misty', 'Windy'];
+  const parkingOptions = [
+    { label: 'Available', value: 'Available' },
+    { label: 'Not Available', value: 'Not Available' }
+  ];
+  const imageOptions = [
+    { label: 'Forest Trail (img1)', value: 'img1' },
+    { label: 'Mountain Peak (img2)', value: 'img2' },
+    { label: 'Valley View (img3)', value: 'img3' },
+    { label: 'Rocky Path (img4)', value: 'img4' },
+    { label: 'River Walk (img5)', value: 'img5' }
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.screenTitle}>Edit Hike Entry</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <Text style={styles.backIcon}>↩</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Edit Hike Entry</Text>
+      </View>
 
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Name of Hike *</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Section 1: Location & GPS */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionIcon}>🎯</Text>
+          <Text style={styles.sectionTitle}>Location & GPS</Text>
+        </View>
+
+        {/* Hike Name Input */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Hike Name*</Text>
           <TextInput
             style={styles.input}
+            placeholder="e.g. Son Tra"
+            placeholderTextColor="#A0AEC0"
             value={formData.name}
             onChangeText={(v) => handleChange('name', v)}
           />
+        </View>
 
-          <Text style={styles.label}>Start Location / Address *</Text>
-          <View style={styles.searchRow}>
+        {/* Search Address Box with Green Pin & Magnifier */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Search Address or Location*</Text>
+          <View style={styles.searchInnerRow}>
+            <View style={styles.greenPinBadge}>
+              <Text style={{ fontSize: 16 }}>📍</Text>
+            </View>
             <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              style={[styles.input, { flex: 1 }]}
+              placeholder="e.g. đường Hoàng Sa, Sơn Trà, Đà Nẵng"
+              placeholderTextColor="#A0AEC0"
               value={formData.location}
-              placeholder="e.g. Đà Nẵng, Hà Nội"
-              placeholderTextColor="#64748b"
               onChangeText={(v) => handleChange('location', v)}
+              onSubmitEditing={handleSearchAddress}
             />
             <TouchableOpacity
-              style={styles.searchBtn}
               onPress={handleSearchAddress}
-              activeOpacity={0.8}
               disabled={isGeocoding}
+              style={styles.searchIconBtn}
             >
               {isGeocoding ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color="#2D3748" size="small" />
               ) : (
-                <Text style={styles.searchBtnText}>🔍 Find</Text>
+                <Text style={styles.searchMagnifier}>🔍</Text>
               )}
             </TouchableOpacity>
           </View>
+        </View>
 
-          {geocodingSource && (
-            <View style={styles.sourceBadge}>
-              <Text style={styles.sourceBadgeText}>✓ Geocoded via {geocodingSource}</Text>
-            </View>
-          )}
-
-          {/* GPS Coordinates Section */}
-          <Text style={styles.label}>Start Location GPS Coordinates</Text>
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <TextInput
-                style={styles.input}
-                placeholder="Lat e.g. 16.047079"
-                placeholderTextColor="#64748b"
-                keyboardType="numeric"
-                value={formData.startLat}
-                onChangeText={(v) => handleChange('startLat', v)}
-              />
-            </View>
-            <View style={styles.col}>
-              <TextInput
-                style={styles.input}
-                placeholder="Lng e.g. 108.206230"
-                placeholderTextColor="#64748b"
-                keyboardType="numeric"
-                value={formData.startLng}
-                onChangeText={(v) => handleChange('startLng', v)}
-              />
-            </View>
+        {/* Green Resolution Badge */}
+        {geocodingSource && (
+          <View style={styles.resolvedBadge}>
+            <Text style={styles.resolvedBadgeText}>
+              ✔ Location resolved via {geocodingSource}
+            </Text>
           </View>
+        )}
 
-          <TouchableOpacity style={styles.fetchGpsBtn} onPress={handleFetchGpsStart}>
+        {/* MiniMap Preview */}
+        <View style={styles.mapContainerBox}>
+          <MiniMap
+            lat={numLat}
+            lng={numLng}
+            title={formData.name || 'Hike Location'}
+            subtitle={formData.location || 'Start Point'}
+            height={200}
+            showControls={true}
+            onMapTap={handleMapTap}
+          />
+          <TouchableOpacity
+            style={styles.useGpsGreenBtn}
+            onPress={handleFetchGpsStart}
+            activeOpacity={0.85}
+          >
             {isLocating ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.fetchGpsText}>🎯 Use Current Device GPS</Text>
+              <View style={styles.useGpsInner}>
+                <Text style={{ fontSize: 16, marginRight: 6 }}>🎯</Text>
+                <Text style={styles.useGpsText}>Use Current GPS Location</Text>
+              </View>
             )}
           </TouchableOpacity>
+        </View>
 
-          {/* MiniMap Preview with Red Marker Pin */}
-          <View style={styles.mapPreviewBox}>
-            <Text style={styles.mapPreviewTitle}>📍 Red Marker Start Location (Tap map to change position)</Text>
-            <MiniMap
-              lat={numLat}
-              lng={numLng}
-              title={formData.name || 'Hike Start'}
-              subtitle={formData.location || 'Location'}
-              height={180}
-              showControls={true}
-              onMapTap={handleMapTap}
+        {/* Latitude & Longitude Inputs */}
+        <View style={styles.rowTwoCols}>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Latitude</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="16.101240"
+              placeholderTextColor="#A0AEC0"
+              keyboardType="numeric"
+              value={formData.startLat}
+              onChangeText={(v) => handleChange('startLat', v)}
             />
           </View>
-
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.label}>Date *</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.date}
-                onChangeText={(v) => handleChange('date', v)}
-              />
-            </View>
-
-            <View style={styles.col}>
-              <Text style={styles.label}>Length (km) *</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                value={formData.length}
-                onChangeText={(v) => handleChange('length', v)}
-              />
-            </View>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Longitude</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="108.265363"
+              placeholderTextColor="#A0AEC0"
+              keyboardType="numeric"
+              value={formData.startLng}
+              onChangeText={(v) => handleChange('startLng', v)}
+            />
           </View>
+        </View>
 
-          <Text style={styles.label}>Parking Available *</Text>
-          <View style={styles.selectorRow}>
-            {['Yes', 'No'].map(p => (
+        {/* Section 2: Trip Details */}
+        <View style={[styles.sectionHeaderRow, { marginTop: 12 }]}>
+          <Text style={styles.sectionIcon}>🎒</Text>
+          <Text style={styles.sectionTitle}>Trip Details</Text>
+        </View>
+
+        {/* Hike Date & Start Time */}
+        <View style={styles.rowTwoCols}>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Hike Date*</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="08/08/2026"
+              placeholderTextColor="#A0AEC0"
+              value={formData.date}
+              onChangeText={(v) => handleChange('date', v)}
+            />
+          </View>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Start Time*</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="05:35 PM"
+              placeholderTextColor="#A0AEC0"
+              value={formData.startTime}
+              onChangeText={(v) => handleChange('startTime', v)}
+            />
+          </View>
+        </View>
+
+        {/* Distance & Duration */}
+        <View style={styles.rowTwoCols}>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Distance (km)*</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="13"
+              placeholderTextColor="#A0AEC0"
+              keyboardType="numeric"
+              value={formData.length}
+              onChangeText={(v) => handleChange('length', v)}
+            />
+          </View>
+          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <Text style={styles.floatingLabel}>Duration (h)*</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="2"
+              placeholderTextColor="#A0AEC0"
+              keyboardType="decimal-pad"
+              value={formData.time}
+              onChangeText={(v) => handleChange('time', v)}
+            />
+          </View>
+        </View>
+
+        {/* Difficulty Level Selector */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Difficulty Level*</Text>
+          <View style={styles.chipRow}>
+            {difficultyOptions.map(diff => (
               <TouchableOpacity
-                key={p}
-                style={[styles.selectorChip, formData.parking === p && styles.selectorChipActive]}
-                onPress={() => handleChange('parking', p)}
+                key={diff}
+                style={[styles.chip, formData.difficulty === diff && styles.chipActive]}
+                onPress={() => handleChange('difficulty', diff)}
               >
-                <Text style={[styles.selectorChipText, formData.parking === p && styles.selectorChipTextActive]}>
-                  {p}
+                <Text style={[styles.chipText, formData.difficulty === diff && styles.chipTextActive]}>
+                  {diff}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
+        </View>
 
-          <Text style={styles.label}>Difficulty Level *</Text>
-          <View style={styles.selectorRow}>
-            {['Easy', 'Medium', 'Hard'].map(d => (
+        {/* Weather Condition Selector */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Weather Condition*</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+            {weatherOptions.map(w => (
               <TouchableOpacity
-                key={d}
-                style={[styles.selectorChip, formData.difficulty === d && styles.selectorChipActive]}
-                onPress={() => handleChange('difficulty', d)}
+                key={w}
+                style={[styles.chip, formData.weather === w && styles.chipActive]}
+                onPress={() => handleChange('weather', w)}
               >
-                <Text style={[styles.selectorChipText, formData.difficulty === d && styles.selectorChipTextActive]}>
-                  {d}
+                <Text style={[styles.chipText, formData.weather === w && styles.chipTextActive]}>
+                  {w}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Parking Available Selector */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Parking Available*</Text>
+          <View style={styles.chipRow}>
+            {parkingOptions.map(p => (
+              <TouchableOpacity
+                key={p.value}
+                style={[styles.chip, (formData.parking === p.value || (p.value === 'Available' && formData.parking === 'Yes')) && styles.chipActive]}
+                onPress={() => handleChange('parking', p.value)}
+              >
+                <Text style={[styles.chipText, (formData.parking === p.value || (p.value === 'Available' && formData.parking === 'Yes')) && styles.chipTextActive]}>
+                  {p.label}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
+        </View>
 
-          <Text style={styles.label}>Weather Condition</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.weather}
-            onChangeText={(v) => handleChange('weather', v)}
-          />
+        {/* Header Image Selector */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Header Image*</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+            {imageOptions.map(img => (
+              <TouchableOpacity
+                key={img.value}
+                style={[styles.chip, (formData.imageResName === img.value || formData.image === img.value) && styles.chipActive]}
+                onPress={() => {
+                  handleChange('imageResName', img.value);
+                  handleChange('image', img.value);
+                }}
+              >
+                <Text style={[styles.chipText, (formData.imageResName === img.value || formData.image === img.value) && styles.chipTextActive]}>
+                  {img.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-          <Text style={styles.label}>Companions</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.companions}
-            onChangeText={(v) => handleChange('companions', v)}
-          />
-
-          <Text style={styles.label}>Image Asset / URL</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.image}
-            onChangeText={(v) => handleChange('image', v)}
-          />
-
-          <Text style={styles.label}>Description / Notes</Text>
+        {/* Description / Notes */}
+        <View style={styles.inputOutlineGroup}>
+          <Text style={styles.floatingLabel}>Description & Notes</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
+            placeholder="Trail details and observations..."
+            placeholderTextColor="#A0AEC0"
             multiline
-            numberOfLines={4}
+            numberOfLines={3}
             value={formData.description}
             onChangeText={(v) => handleChange('description', v)}
           />
-
-          <TouchableOpacity style={styles.submitBtn} onPress={handleSave}>
-            <Text style={styles.submitBtnText}>Save Changes</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Save Changes Green Button */}
+        <TouchableOpacity style={styles.saveGreenBtn} onPress={handleSave} activeOpacity={0.85}>
+          <Text style={styles.saveGreenBtnText}>Save Changes</Text>
+        </TouchableOpacity>
+
+        {/* Discard Link */}
+        <TouchableOpacity style={styles.discardLinkBtn} onPress={() => navigation.goBack()}>
+          <Text style={styles.discardLinkText}>Discard</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -219,143 +333,186 @@ export const EditHikeView = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#F8FAFC',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  backBtn: {
+    marginRight: 12,
+    padding: 4,
+  },
+  backIcon: {
+    fontSize: 22,
+    color: '#1A202C',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1A202C',
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingBottom: 40,
   },
-  screenTitle: {
-    color: '#f8fafc',
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 16,
-  },
-  formCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  label: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-  searchRow: {
+  sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  searchBtn: {
-    backgroundColor: '#10b981',
+  sectionIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E4620',
+  },
+  inputOutlineGroup: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 14,
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingVertical: 8,
+    marginBottom: 14,
+    position: 'relative',
   },
-  searchBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  sourceBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: '#10b981',
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
-  sourceBadgeText: {
-    color: '#34d399',
+  floatingLabel: {
+    position: 'absolute',
+    top: -10,
+    left: 14,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 6,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#475569',
+    zIndex: 2,
   },
   input: {
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#f8fafc',
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    marginBottom: 10,
+    fontSize: 15,
+    color: '#1E293B',
+    paddingVertical: 4,
   },
-  textArea: {
-    height: 90,
-    textAlignVertical: 'top',
-  },
-  row: {
+  searchInnerRow: {
     flexDirection: 'row',
-    gap: 10,
-  },
-  col: {
-    flex: 1,
-  },
-  fetchGpsBtn: {
-    backgroundColor: '#2563eb',
-    paddingVertical: 10,
-    borderRadius: 10,
     alignItems: 'center',
+  },
+  greenPinBadge: {
+    marginRight: 8,
+  },
+  searchIconBtn: {
+    padding: 4,
+    marginLeft: 6,
+  },
+  searchMagnifier: {
+    fontSize: 18,
+  },
+  resolvedBadge: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#86EFAC',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     marginBottom: 12,
+    alignSelf: 'flex-start',
   },
-  fetchGpsText: {
-    color: '#ffffff',
+  resolvedBadgeText: {
+    color: '#166534',
+    fontSize: 12,
     fontWeight: '700',
-    fontSize: 13,
   },
-  mapPreviewBox: {
+  mapContainerBox: {
     marginBottom: 14,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  mapPreviewTitle: {
-    color: '#94a3b8',
-    fontSize: 11,
-    fontWeight: '700',
-    marginBottom: 4,
+  useGpsGreenBtn: {
+    backgroundColor: '#2D7A32',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
   },
-  selectorRow: {
+  useGpsInner: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  selectorChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    paddingHorizontal: 12,
+  useGpsText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  rowTwoCols: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  chip: {
+    paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
+    backgroundColor: '#F1F5F9',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E2E8F0',
   },
-  selectorChipActive: {
-    backgroundColor: '#10b981',
-    borderColor: '#10b981',
+  chipActive: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#2D7A32',
   },
-  selectorChipText: {
-    color: '#94a3b8',
-    fontSize: 12,
+  chipText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: '#475569',
   },
-  selectorChipTextActive: {
-    color: '#ffffff',
+  chipTextActive: {
+    color: '#1E4620',
+    fontWeight: '800',
   },
-  submitBtn: {
-    backgroundColor: '#10b981',
-    borderRadius: 12,
-    paddingVertical: 14,
+  textArea: {
+    height: 70,
+    textAlignVertical: 'top',
+  },
+  saveGreenBtn: {
+    backgroundColor: '#2D7A32',
+    borderRadius: 14,
+    paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
+    marginBottom: 12,
+    shadowColor: '#2D7A32',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  submitBtnText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '700',
+  saveGreenBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  discardLinkBtn: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  discardLinkText: {
+    color: '#64748B',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

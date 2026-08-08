@@ -13,23 +13,24 @@ export const useAddHikeController = (navigation) => {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    startLat: DEFAULT_VIETNAM_LAT.toString(),
-    startLng: DEFAULT_VIETNAM_LNG.toString(),
+    startLat: DEFAULT_VIETNAM_LAT.toFixed(6),
+    startLng: DEFAULT_VIETNAM_LNG.toFixed(6),
     date: new Date().toLocaleDateString('en-GB'),
-    time: '',
+    startTime: '05:35 PM',
     length: '',
+    time: '',
     difficulty: 'Medium',
-    parking: 'Yes',
     weather: 'Cool',
-    companions: 'Friends',
-    imageResName: 'img2',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80',
+    parking: 'Available',
+    imageResName: 'img1',
+    image: 'img1',
     description: ''
   });
 
   const [isLocating, setIsLocating] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingSource, setGeocodingSource] = useState(null);
+  const [geocodingTimeMs, setGeocodingTimeMs] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleChange = (key, value) => {
@@ -38,15 +39,20 @@ export const useAddHikeController = (navigation) => {
 
   const handleSearchAddress = async () => {
     if (!formData.location || !formData.location.trim()) {
-      Alert.alert('Search Error', 'Please enter an address or location name to search (e.g. Đà Nẵng, Hà Nội, Sapa).');
+      Alert.alert('Search Error', 'Please enter an address or location name to search (e.g. đường Hoàng Sa, Sơn Trà, Đà Nẵng).');
       return;
     }
 
     setIsGeocoding(true);
     setGeocodingSource(null);
+    setGeocodingTimeMs(null);
+    const startMs = Date.now();
 
     try {
       const result = await searchLocationChain(formData.location);
+      const elapsed = Date.now() - startMs;
+      setGeocodingTimeMs(elapsed);
+
       if (result) {
         setFormData(prev => ({
           ...prev,
@@ -55,10 +61,6 @@ export const useAddHikeController = (navigation) => {
           location: result.displayName || prev.location
         }));
         setGeocodingSource(result.source);
-        Alert.alert(
-          '📍 Red Marker Placed!',
-          `Found Location: ${result.displayName}\n\nCoordinates: ${result.lat.toFixed(6)}, ${result.lng.toFixed(6)}\n\n(Geocoding via: ${result.source})`
-        );
       } else {
         Alert.alert('Location Not Found', `Could not find coordinates for "${formData.location}" via Android Geocoder, OpenStreetMap, or Komoot.`);
       }
@@ -80,8 +82,12 @@ export const useAddHikeController = (navigation) => {
       startLng: lngStr
     }));
 
+    const startMs = Date.now();
     try {
       const revResult = await reverseGeocodeChain(tapLat, tapLng);
+      const elapsed = Date.now() - startMs;
+      setGeocodingTimeMs(elapsed);
+
       if (revResult && revResult.locationName) {
         setFormData(prev => ({
           ...prev,
@@ -96,6 +102,7 @@ export const useAddHikeController = (navigation) => {
 
   const handleFetchGpsStart = async () => {
     setIsLocating(true);
+    const startMs = Date.now();
     try {
       const gps = await getCurrentGpsLocation();
       const latStr = gps.lat.toFixed(6);
@@ -108,12 +115,13 @@ export const useAddHikeController = (navigation) => {
       }));
 
       const revResult = await reverseGeocodeChain(gps.lat, gps.lng);
+      const elapsed = Date.now() - startMs;
+      setGeocodingTimeMs(elapsed);
+
       if (revResult && revResult.locationName) {
         setFormData(prev => ({ ...prev, location: revResult.locationName }));
         setGeocodingSource(revResult.source);
       }
-
-      Alert.alert('GPS Location Fetched', `Set start coordinates to:\nLatitude: ${latStr}\nLongitude: ${lngStr}`);
     } catch (e) {
       console.error('Location error', e);
       Alert.alert('Location Error', 'Unable to retrieve GPS position.');
@@ -152,6 +160,7 @@ export const useAddHikeController = (navigation) => {
     isLocating,
     isGeocoding,
     geocodingSource,
+    geocodingTimeMs,
     isConfirmOpen,
     setIsConfirmOpen,
     handleChange,
