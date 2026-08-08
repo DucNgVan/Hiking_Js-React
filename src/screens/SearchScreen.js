@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHikes } from '../context/HikeContext';
 import { HikeCard } from '../components/HikeCard';
 
 export const SearchScreen = ({ navigation }) => {
-  const { searchQuery, setSearchQuery, filteredTrails } = useHikes();
+  const { trails } = useHikes();
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+
+  const searchResults = trails.filter(t => {
+    if (!localSearchQuery.trim()) return true;
+    const query = localSearchQuery.toLowerCase();
+    const nameMatch = (t.name || '').toLowerCase().includes(query);
+    const locMatch = (t.location || '').toLowerCase().includes(query);
+    const diffMatch = (t.difficulty || '').toLowerCase().includes(query);
+    return nameMatch || locMatch || diffMatch;
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -17,7 +27,7 @@ export const SearchScreen = ({ navigation }) => {
         <Text style={styles.headerTitle}>Search Hikes</Text>
       </View>
 
-      {/* Outlined Search Input Box matching Android Studio screenshot 14.16.46 */}
+      {/* Outlined Search Input Box (Local Search Query, independent from Home page) */}
       <View style={styles.searchBoxContainer}>
         <View style={styles.inputOutlineGroup}>
           <Text style={styles.floatingLabel}>Search by name or location</Text>
@@ -27,12 +37,12 @@ export const SearchScreen = ({ navigation }) => {
               style={styles.searchInput}
               placeholder="Search by name or location"
               placeholderTextColor="#94A3B8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
+              value={localSearchQuery}
+              onChangeText={setLocalSearchQuery}
               autoFocus
             />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
+            {localSearchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setLocalSearchQuery('')}>
                 <Text style={styles.clearIcon}>❌</Text>
               </TouchableOpacity>
             )}
@@ -42,21 +52,21 @@ export const SearchScreen = ({ navigation }) => {
 
       {/* Results List */}
       <FlatList
-        data={filteredTrails}
+        data={searchResults}
         keyExtractor={(item, index) => String(item.firebaseId || item.id || `search-item-${index}`)}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <HikeCard
             trail={item}
-            onPress={() => navigation.navigate('HikeDetail', { hikeId: item.id })}
-            onEdit={() => navigation.navigate('EditHike', { hikeId: item.id })}
+            onPress={() => navigation.navigate('HikeDetail', { hikeId: item.firebaseId || item.id })}
+            onEdit={() => navigation.navigate('EditHike', { hikeId: item.firebaseId || item.id })}
           />
         )}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
             <Text style={{ fontSize: 36, marginBottom: 8 }}>🔍</Text>
             <Text style={styles.emptyTitle}>No matching hikes found</Text>
-            <Text style={styles.emptySub}>Try searching for "Da Lat", "Da Nang", "Fansipan", or "Ba Vi".</Text>
+            <Text style={styles.emptySub}>Try searching for "Son Tra", "Da Lat", "Da Nang", "Fansipan", or "Ba Vi".</Text>
           </View>
         }
       />

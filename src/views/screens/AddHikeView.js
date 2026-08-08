@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAddHikeController } from '../../controllers/useAddHikeController';
 import { HikeConfirmModal } from '../../components/HikeConfirmModal';
 import { MiniMap } from '../../components/MiniMap';
-import { COLORS } from '../../theme';
+import { DatePickerModal, TimePickerModal } from '../../components/DateTimePickerModal';
 
 export const AddHikeView = ({ navigation }) => {
   const {
@@ -32,6 +32,9 @@ export const AddHikeView = ({ navigation }) => {
     numLat,
     numLng
   } = useAddHikeController(navigation);
+
+  const [dateModalVisible, setDateModalVisible] = useState(false);
+  const [timeModalVisible, setTimeModalVisible] = useState(false);
 
   const difficultyOptions = ['Easy', 'Medium', 'Hard'];
   const weatherOptions = ['Sunny & Breezy', 'Rainy', 'Cloudy', 'Cool', 'Misty', 'Windy'];
@@ -173,28 +176,31 @@ export const AddHikeView = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Trip Details</Text>
         </View>
 
-        {/* Hike Date & Start Time */}
+        {/* Hike Date & Start Time - Interactive Pickers (Clickable, No typing) */}
         <View style={styles.rowTwoCols}>
-          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+          <TouchableOpacity
+            style={[styles.inputOutlineGroup, { flex: 1 }]}
+            onPress={() => setDateModalVisible(true)}
+            activeOpacity={0.8}
+          >
             <Text style={styles.floatingLabel}>Hike Date*</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="08/08/2026"
-              placeholderTextColor="#A0AEC0"
-              value={formData.date}
-              onChangeText={(v) => handleChange('date', v)}
-            />
-          </View>
-          <View style={[styles.inputOutlineGroup, { flex: 1 }]}>
+            <View style={styles.pickerValueRow}>
+              <Text style={styles.pickerValueText}>{formData.date || 'Select Date'}</Text>
+              <Text style={{ fontSize: 16 }}>📅</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.inputOutlineGroup, { flex: 1 }]}
+            onPress={() => setTimeModalVisible(true)}
+            activeOpacity={0.8}
+          >
             <Text style={styles.floatingLabel}>Start Time*</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="05:35 PM"
-              placeholderTextColor="#A0AEC0"
-              value={formData.startTime}
-              onChangeText={(v) => handleChange('startTime', v)}
-            />
-          </View>
+            <View style={styles.pickerValueRow}>
+              <Text style={styles.pickerValueText}>{formData.startTime || 'Select Time'}</Text>
+              <Text style={{ fontSize: 16 }}>⏰</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Distance & Duration */}
@@ -323,6 +329,21 @@ export const AddHikeView = ({ navigation }) => {
         </TouchableOpacity>
       </ScrollView>
 
+      {/* Date & Time Picker Modals */}
+      <DatePickerModal
+        visible={dateModalVisible}
+        onClose={() => setDateModalVisible(false)}
+        currentDate={formData.date}
+        onSelectDate={(d) => handleChange('date', d)}
+      />
+
+      <TimePickerModal
+        visible={timeModalVisible}
+        onClose={() => setTimeModalVisible(false)}
+        currentTime={formData.startTime}
+        onSelectTime={(t) => handleChange('startTime', t)}
+      />
+
       <HikeConfirmModal
         visible={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -405,6 +426,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#1E293B',
     paddingVertical: 4,
+  },
+  pickerValueRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  pickerValueText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
   },
   searchInnerRow: {
     flexDirection: 'row',

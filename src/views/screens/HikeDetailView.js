@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHikeDetailController } from '../../controllers/useHikeDetailController';
 import { ObservationModal } from '../../components/ObservationModal';
 import { MiniMap } from '../../components/MiniMap';
-import { getImageSource, getTrackingImagesList } from '../../services/imageService';
+import { getImageSource } from '../../services/imageService';
 
 export const HikeDetailView = ({ route, navigation }) => {
   const { hikeId } = route.params || {};
@@ -12,11 +12,13 @@ export const HikeDetailView = ({ route, navigation }) => {
     trail,
     isFavorite,
     observations,
+    isOwner,
     startLat,
     startLng,
     obsModalVisible,
     setObsModalVisible,
     toggleFavorite,
+    handleEditHike,
     handleDeleteHike,
     handleAddObs,
     handleDeleteObs
@@ -31,23 +33,26 @@ export const HikeDetailView = ({ route, navigation }) => {
   }
 
   const mainImageSource = getImageSource(trail.image, trail.imageResName);
-  const trackingImages = getTrackingImagesList(trail);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Top Green Bar */}
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Top Green Navigation Bar */}
       <View style={styles.greenNavHeader}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backIconText}>↩</Text>
         </TouchableOpacity>
         <Text style={styles.navTitle} numberOfLines={1}>{trail.name}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('EditHike', { hikeId: trail.id })}>
-          <Text style={styles.editTopText}>Edit</Text>
-        </TouchableOpacity>
+        {isOwner ? (
+          <TouchableOpacity onPress={handleEditHike}>
+            <Text style={styles.editTopText}>Edit</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 30 }} />
+        )}
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Banner Image */}
+        {/* Banner Image - Only the single image selected by user */}
         <View style={styles.imageBox}>
           <Image source={mainImageSource} style={styles.image} />
           <TouchableOpacity 
@@ -60,21 +65,6 @@ export const HikeDetailView = ({ route, navigation }) => {
 
         <Text style={styles.title}>{trail.name}</Text>
         <Text style={styles.location}>📍 {trail.location}</Text>
-
-        {/* 5 Tracking Photos Carousel */}
-        <View style={styles.galleryBox}>
-          <Text style={styles.galleryTitle}>📸 5 Tracking Photos (img1 - img5)</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryScroll}>
-            {trackingImages.map((imgSrc, idx) => (
-              <View key={idx} style={styles.galleryItem}>
-                <Image source={imgSrc} style={styles.galleryImg} />
-                <View style={styles.galleryBadge}>
-                  <Text style={styles.galleryBadgeText}>img{idx + 1}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
 
         {/* Start Location & Map */}
         <View style={styles.card}>
@@ -131,6 +121,14 @@ export const HikeDetailView = ({ route, navigation }) => {
           </View>
         </View>
 
+        {/* Description Section */}
+        {trail.description ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>📝 Trail Description</Text>
+            <Text style={styles.descriptionText}>{trail.description}</Text>
+          </View>
+        ) : null}
+
         {/* Observations Section */}
         <View style={styles.card}>
           <View style={styles.obsHeaderRow}>
@@ -166,10 +164,12 @@ export const HikeDetailView = ({ route, navigation }) => {
           )}
         </View>
 
-        {/* Remove Journey Red Outlined Button */}
-        <TouchableOpacity style={styles.removeJourneyBtn} onPress={handleDeleteHike} activeOpacity={0.85}>
-          <Text style={styles.removeJourneyText}>Remove Journey</Text>
-        </TouchableOpacity>
+        {/* Remove Journey Red Outlined Button - Only visible for hike creator */}
+        {isOwner && (
+          <TouchableOpacity style={styles.removeJourneyBtn} onPress={handleDeleteHike} activeOpacity={0.85}>
+            <Text style={styles.removeJourneyText}>Remove Journey</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Observation Add Modal */}
@@ -250,42 +250,6 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginBottom: 14,
   },
-  galleryBox: {
-    marginBottom: 16,
-  },
-  galleryTitle: {
-    color: '#2E7D32',
-    fontSize: 13,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  galleryScroll: {
-    gap: 10,
-  },
-  galleryItem: {
-    position: 'relative',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  galleryImg: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-  },
-  galleryBadge: {
-    position: 'absolute',
-    bottom: 4,
-    left: 4,
-    backgroundColor: 'rgba(30, 41, 59, 0.8)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  galleryBadgeText: {
-    color: '#ffffff',
-    fontSize: 10,
-    fontWeight: '700',
-  },
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
@@ -304,6 +268,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     marginBottom: 12,
+  },
+  descriptionText: {
+    color: '#475569',
+    fontSize: 14,
+    lineHeight: 20,
   },
   specRow: {
     flexDirection: 'row',
