@@ -111,32 +111,22 @@ function MainNavigation() {
           <Stack.Screen name="SignIn" component={SignInScreen} />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: COLORS.bgMain },
-            headerTintColor: '#1A202C',
-            headerTitleStyle: { fontWeight: '700' },
-          }}
-        >
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen 
             name="MainTabs" 
             component={TabNavigator} 
-            options={{ headerShown: false }} 
           />
           <Stack.Screen 
             name="HikeDetail" 
             component={HikeDetailScreen} 
-            options={{ title: 'Hike Details' }} 
           />
           <Stack.Screen 
             name="AddHike" 
             component={AddHikeScreen} 
-            options={{ headerShown: false }} 
           />
           <Stack.Screen 
             name="EditHike" 
             component={EditHikeScreen} 
-            options={{ title: 'Edit Hike Entry' }} 
           />
         </Stack.Navigator>
       )}

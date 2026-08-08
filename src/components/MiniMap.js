@@ -13,9 +13,6 @@ export const MiniMap = ({
   lng = VIETNAM_DEFAULT_LNG,
   title = 'Start Location',
   subtitle = 'Vietnam',
-  plannedRoute = [],
-  actualRoute = [],
-  routePoints = [],
   height = 220,
   showControls = true,
   onMapTap = null
@@ -24,10 +21,6 @@ export const MiniMap = ({
 
   const startLat = (typeof lat === 'number' && !isNaN(lat)) ? lat : parseFloat(lat) || VIETNAM_DEFAULT_LAT;
   const startLng = (typeof lng === 'number' && !isNaN(lng)) ? lng : parseFloat(lng) || VIETNAM_DEFAULT_LNG;
-
-  const pRoute = useMemo(() => plannedRoute.length > 0 ? plannedRoute : [{ lat: startLat, lng: startLng }], [plannedRoute, startLat, startLng]);
-  const aRoute = actualRoute;
-  const rPoints = routePoints;
 
   useEffect(() => {
     if (webViewRef.current) {
@@ -50,7 +43,7 @@ export const MiniMap = ({
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.0/mapbox-gl.js"></script>
   <style>
     * { box-sizing: border-box; }
-    html, body, #map { height: 100%; width: 100%; margin: 0; padding: 0; background: #0f172a; touch-action: pan-x pan-y; }
+    html, body, #map { height: 100%; width: 100%; margin: 0; padding: 0; background: #F6F8F5; touch-action: pan-x pan-y; }
     .mapboxgl-map { font-family: system-ui, -apple-system, sans-serif; }
 
     /* Dual-Layer Red Marker Pin & Pulse Halo */
@@ -99,48 +92,6 @@ export const MiniMap = ({
       attributionControl: false
     });
 
-    var plannedCoords = ${JSON.stringify(pRoute.map(p => [p.lng, p.lat]))};
-    if (plannedCoords && plannedCoords.length > 1) {
-      map.on('load', function() {
-        map.addSource('planned-route', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            geometry: { type: 'LineString', coordinates: plannedCoords },
-            properties: {}
-          }
-        });
-        map.addLayer({
-          id: 'planned-route',
-          type: 'line',
-          source: 'planned-route',
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#3b82f6', 'line-width': 4, 'line-dasharray': [4, 2] }
-        });
-      });
-    }
-
-    var actualCoords = ${JSON.stringify(aRoute.map(p => [p.lng, p.lat]))};
-    if (actualCoords && actualCoords.length > 1) {
-      map.on('load', function() {
-        map.addSource('actual-route', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            geometry: { type: 'LineString', coordinates: actualCoords },
-            properties: {}
-          }
-        });
-        map.addLayer({
-          id: 'actual-route',
-          type: 'line',
-          source: 'actual-route',
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#10b981', 'line-width': 5 }
-        });
-      });
-    }
-
     // Dual layer HD Red Marker Pin with IconAnchor BOTTOM
     var markerEl = document.createElement('div');
     markerEl.className = 'red-marker-wrapper';
@@ -157,21 +108,6 @@ export const MiniMap = ({
     var currentMarker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
       .setLngLat([${startLng}, ${startLat}])
       .addTo(map);
-
-    var routePoints = ${JSON.stringify(rPoints)};
-    if (routePoints && routePoints.length > 0) {
-      routePoints.forEach(function(pt) {
-        if (pt.lat && pt.lng && (pt.lat !== ${startLat} || pt.lng !== ${startLng})) {
-          var checkpointEl = document.createElement('div');
-          checkpointEl.style.width = '10px';
-          checkpointEl.style.height = '10px';
-          checkpointEl.style.borderRadius = '50%';
-          checkpointEl.style.background = '#f59e0b';
-          checkpointEl.style.border = '2px solid white';
-          new mapboxgl.Marker({ element: checkpointEl, anchor: 'center' }).setLngLat([pt.lng, pt.lat]).addTo(map);
-        }
-      });
-    }
 
     // Tap Map to drop / move Red Marker Pin
     map.on('click', function(e) {
@@ -202,7 +138,7 @@ export const MiniMap = ({
   </script>
 </body>
 </html>
-  `, [startLat, startLng, title, subtitle, pRoute, aRoute, rPoints]);
+  `, [startLat, startLng, title, subtitle]);
 
   const mapSource = useMemo(() => ({ html: mapHtml }), [mapHtml]);
 
@@ -248,28 +184,27 @@ export const MiniMap = ({
         startInLoadingState={true}
         renderLoading={() => (
           <View style={styles.loadingBox}>
-            <ActivityIndicator size="small" color={COLORS.primary || '#10b981'} />
+            <ActivityIndicator color={COLORS.primary} size="large" />
           </View>
         )}
       />
 
       {showControls && (
-        <View style={styles.controlsOverlay}>
-          <TouchableOpacity style={styles.btn} onPress={handleZoomIn} activeOpacity={0.8}>
-            <Text style={styles.btnText}>➕</Text>
+        <View style={styles.zoomControls}>
+          <TouchableOpacity style={styles.zoomBtn} onPress={handleZoomIn}>
+            <Text style={styles.zoomBtnText}>+</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btn} onPress={handleZoomOut} activeOpacity={0.8}>
-            <Text style={styles.btnText}>➖</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, styles.recenterBtn]} onPress={handleRecenter} activeOpacity={0.8}>
-            <Text style={styles.btnText}>🎯</Text>
+          <TouchableOpacity style={styles.zoomBtn} onPress={handleZoomOut}>
+            <Text style={styles.zoomBtnText}>−</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={styles.coordsBadge}>
-        <Text style={styles.coordsText}>📍 {startLat.toFixed(4)}°, {startLng.toFixed(4)}°</Text>
-      </View>
+      {showControls && (
+        <TouchableOpacity style={styles.recenterBtn} onPress={handleRecenter}>
+          <Text style={styles.recenterText}>🎯</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -280,57 +215,63 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: '#0f172a',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: COLORS.cardBorder,
   },
   webView: {
     flex: 1,
+    backgroundColor: '#F6F8F5',
   },
   loadingBox: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#F6F8F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  controlsOverlay: {
+  zoomControls: {
     position: 'absolute',
-    right: 10,
     top: 10,
-    gap: 6,
+    right: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
-  btn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+  zoomBtn: {
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  zoomBtnText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1E293B',
+    lineHeight: 22,
   },
   recenterBtn: {
-    backgroundColor: '#ef4444',
-    borderColor: '#dc2626',
-  },
-  btnText: {
-    fontSize: 14,
-    color: '#ffffff',
-  },
-  coordsBadge: {
     position: 'absolute',
     bottom: 10,
-    left: 10,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    right: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
-  coordsText: {
-    color: '#38bdf8',
-    fontSize: 11,
-    fontWeight: '700',
+  recenterText: {
+    fontSize: 16,
   },
 });
