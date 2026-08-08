@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, SafeAreaVi
 import { useHikeDetailController } from '../../controllers/useHikeDetailController';
 import { ObservationModal } from '../../components/ObservationModal';
 import { MiniMap } from '../../components/MiniMap';
+import { getImageSource, getTrackingImagesList } from '../../services/imageService';
 
 export const HikeDetailView = ({ route, navigation }) => {
   const { hikeId } = route.params || {};
@@ -28,12 +29,15 @@ export const HikeDetailView = ({ route, navigation }) => {
     );
   }
 
+  const mainImageSource = getImageSource(trail.image, trail.imageResName);
+  const trackingImages = getTrackingImagesList(trail);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Banner */}
+        {/* Banner Image */}
         <View style={styles.imageBox}>
-          <Image source={{ uri: trail.image }} style={styles.image} />
+          <Image source={mainImageSource} style={styles.image} />
           <TouchableOpacity 
             style={styles.favBtn} 
             onPress={toggleFavorite}
@@ -44,6 +48,21 @@ export const HikeDetailView = ({ route, navigation }) => {
 
         <Text style={styles.title}>{trail.name}</Text>
         <Text style={styles.location}>📍 {trail.location}</Text>
+
+        {/* 5 Tracking Photos Carousel / Gallery */}
+        <View style={styles.galleryBox}>
+          <Text style={styles.galleryTitle}>📸 5 Tracking Photos (img1 - img5)</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryScroll}>
+            {trackingImages.map((imgSrc, idx) => (
+              <View key={idx} style={styles.galleryItem}>
+                <Image source={imgSrc} style={styles.galleryImg} />
+                <View style={styles.galleryBadge}>
+                  <Text style={styles.galleryBadgeText}>img{idx + 1}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
 
         {/* Action Row */}
         <View style={styles.actionRow}>
@@ -151,7 +170,7 @@ export const HikeDetailView = ({ route, navigation }) => {
             observations.map((obs) => (
               <View key={obs.id} style={styles.obsCard}>
                 <View style={styles.obsCardHeader}>
-                  <Text style={styles.obsText}>{obs.text}</Text>
+                  <Text style={styles.obsText}>{obs.text || obs.observation}</Text>
                   <TouchableOpacity onPress={() => handleDeleteObs(obs.id)}>
                     <Text style={{ fontSize: 16 }}>🗑️</Text>
                   </TouchableOpacity>
@@ -219,7 +238,43 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 14,
     color: '#94a3b8',
+    marginBottom: 12,
+  },
+  galleryBox: {
     marginBottom: 16,
+  },
+  galleryTitle: {
+    color: '#38bdf8',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  galleryScroll: {
+    gap: 10,
+  },
+  galleryItem: {
+    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  galleryImg: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+  },
+  galleryBadge: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  galleryBadgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '700',
   },
   actionRow: {
     flexDirection: 'row',

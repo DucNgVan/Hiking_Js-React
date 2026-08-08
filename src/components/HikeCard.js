@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useHikes } from '../context/HikeContext';
 import { COLORS } from '../theme';
+import { getImageSource } from '../services/imageService';
 
 export const HikeCard = ({ trail, onPress, onEdit }) => {
   const { deleteHike } = useHikes();
@@ -36,6 +37,8 @@ export const HikeCard = ({ trail, onPress, onEdit }) => {
     );
   };
 
+  const imageSource = getImageSource(trail.image, trail.imageResName);
+
   return (
     <TouchableOpacity 
       style={styles.card} 
@@ -43,7 +46,7 @@ export const HikeCard = ({ trail, onPress, onEdit }) => {
       onLongPress={handleLongPress}
       activeOpacity={0.85}
     >
-      <Image source={{ uri: trail.image }} style={styles.thumbnail} />
+      <Image source={imageSource} style={styles.thumbnail} />
 
       <View style={styles.content}>
         <View style={styles.titleRow}>
