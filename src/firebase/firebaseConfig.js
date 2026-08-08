@@ -3,20 +3,18 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD-WGFShCu7ZLN3rAzqiOhNjIp74VWmNUI",
-  authDomain: "hiking-react.firebaseapp.com",
-  projectId: "hiking-react",
-  storageBucket: "hiking-react.appspot.com",
-  messagingSenderId: "588988357102",
-  appId: "1:588988357102:ios:72d421fa13df411d0356ff",
+  apiKey: "AIzaSyAxXTqEkxsosC56KZk29AP2pcJGunlkh-M",
+  authDomain: "hikingapp-81d90.firebaseapp.com",
+  projectId: "hikingapp-81d90",
+  storageBucket: "hikingapp-81d90.firebasestorage.app",
+  messagingSenderId: "68062805879",
+  appId: "1:68062805879:android:261c4227dbdbfcb9c1eb72",
 };
 
-const firebaseEnabled = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('YOUR_');
-
-if (firebaseEnabled && !getApps().length) {
+if (!getApps().length) {
   initializeApp(firebaseConfig);
 }
 
-export const isFirebaseEnabled = firebaseEnabled;
-export const auth = firebaseEnabled ? getAuth() : null;
-export const db = firebaseEnabled ? getFirestore() : null;
+export const isFirebaseEnabled = true;
+export const auth = getAuth();
+export const db = getFirestore();

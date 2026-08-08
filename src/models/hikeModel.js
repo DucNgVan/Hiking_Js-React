@@ -1,5 +1,6 @@
 /**
  * Hike Model - Business Logic, Validation & Object Formatting for Hike Data
+ * Fully aligned with Android Studio Java Firestore schema (hikingapp-81d90)
  */
 
 export const DEFAULT_VIETNAM_LAT = 16.047079;
@@ -30,21 +31,24 @@ export const validateHikeInput = (formData) => {
 export const buildHikePayload = (formData, user) => {
   const lat = parseFloat(formData.startLat) || DEFAULT_VIETNAM_LAT;
   const lng = parseFloat(formData.startLng) || DEFAULT_VIETNAM_LNG;
-  const hours = Number(formData.time) || 0;
+  const durationVal = formData.time || formData.duration || '3.5';
+  const hours = Number(durationVal) || 0;
 
   return {
     name: formData.name?.trim() || '',
     location: formData.location?.trim() || '',
     date: formData.date || new Date().toLocaleDateString('en-GB'),
-    time: formData.time || '',
+    time: durationVal,
+    duration: durationVal,
+    startTime: formData.startTime || '07:30 AM',
     hours,
-    length: formData.length || '',
+    length: formData.length || '8.0',
     lengthKm: Number(formData.length) || 0,
     difficulty: formData.difficulty || 'Medium',
     parking: formData.parking || 'Yes',
-    weather: formData.weather?.trim() || 'Cool',
-    companions: formData.companions?.trim() || 'Friends',
-    imageResName: formData.imageResName || 'img2',
+    weather: formData.weather?.trim() || 'Sunny & Breezy',
+    companions: formData.companions?.trim() || null,
+    imageResName: formData.imageResName || 'img3',
     image: formData.image || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80',
     description: formData.description?.trim() || '',
     startLat: lat.toFixed(6),
@@ -52,17 +56,18 @@ export const buildHikePayload = (formData, user) => {
     lat,
     lng,
     coordinates: { latitude: lat, longitude: lng },
-    creatorName: user?.name || 'Unknown User',
+    creatorId: user?.uid || user?.email || 'dTV4YE35UcNjCGFM92uwSmvDFGw1',
+    creatorName: user?.name || null,
     creatorEmail: user?.email || '',
     createdBy: user?.email || '',
-    plannedRoute: [
+    plannedRoute: formData.plannedRoute || [
       { lat, lng },
       { lat: lat + 0.005, lng: lng + 0.005 }
     ],
-    routePoints: [
+    routePoints: formData.routePoints || [
       { lat, lng, weather: formData.weather || 'Cool' }
     ],
-    actualRoute: [
+    actualRoute: formData.actualRoute || [
       { lat, lng },
       { lat: lat + 0.002, lng: lng + 0.002 },
       { lat: lat + 0.005, lng: lng + 0.005 }

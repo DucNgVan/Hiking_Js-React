@@ -19,6 +19,9 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# Word temp files
+~$*.docx
+
 # Metro
 .metro-health-check*
 

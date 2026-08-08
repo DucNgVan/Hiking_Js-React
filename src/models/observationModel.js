@@ -1,10 +1,12 @@
 /**
  * Observation Model - Validation and formatting for Hike Field Observations
+ * Aligned with Android Studio Java Firestore schema (hikingapp-81d90)
  */
 
 export const validateObservationInput = (obsData) => {
   const errors = [];
-  if (!obsData?.text || !obsData.text.trim()) {
+  const textVal = obsData?.text || obsData?.observation;
+  if (!textVal || !textVal.trim()) {
     errors.push("Observation text / note is required!");
   }
   return {
@@ -13,12 +15,16 @@ export const validateObservationInput = (obsData) => {
   };
 };
 
-export const buildObservationPayload = (obsData) => {
+export const buildObservationPayload = (obsData, hikeId) => {
+  const obsText = obsData.text?.trim() || obsData.observation?.trim() || '';
+
   return {
     id: Date.now().toString(),
-    text: obsData.text?.trim() || '',
-    time: obsData.time || new Date().toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }),
+    observation: obsText,
+    text: obsText,
+    time: obsData.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     weather: obsData.weather || 'Normal',
-    comments: obsData.comments?.trim() || ''
+    comments: obsData.comments?.trim() || '',
+    hikeFirebaseId: hikeId || obsData.hikeFirebaseId || ''
   };
 };
