@@ -10,16 +10,16 @@ export const HikeCard = ({ trail, onPress, onEdit }) => {
   const getBadgeStyle = (diff) => {
     switch (diff?.toLowerCase()) {
       case 'easy':
-        return { bg: COLORS.badgeEasyBg, text: COLORS.badgeEasyText, border: '#C8E6C9' };
+        return { bg: '#EDFDF5', text: '#276749' };
       case 'medium':
       case 'moderate':
-        return { bg: COLORS.badgeMediumBg, text: COLORS.badgeMediumText, border: '#FFE0B2' };
+        return { bg: '#FFF5F5', text: '#DD6B20' };
       case 'hard':
       case 'challenging':
       case 'expert':
-        return { bg: COLORS.badgeHardBg, text: COLORS.badgeHardText, border: '#FFCDD2' };
+        return { bg: '#FFEBEE', text: '#C53030' };
       default:
-        return { bg: COLORS.badgeEasyBg, text: COLORS.badgeEasyText, border: '#C8E6C9' };
+        return { bg: '#EDFDF5', text: '#276749' };
     }
   };
 
@@ -51,12 +51,12 @@ export const HikeCard = ({ trail, onPress, onEdit }) => {
       <View style={styles.content}>
         <View style={styles.titleRow}>
           <Text style={styles.title} numberOfLines={1}>{trail.name}</Text>
-          <View style={[styles.badge, { backgroundColor: badgeStyle.bg, borderColor: badgeStyle.border }]}>
-            <Text style={[styles.badgeText, { color: badgeStyle.text }]}>{trail.difficulty}</Text>
+          <View style={[styles.badge, { backgroundColor: badgeStyle.bg }]}>
+            <Text style={[styles.badgeText, { color: badgeStyle.text }]}>{trail.difficulty || 'Medium'}</Text>
           </View>
         </View>
 
-        <Text style={styles.location}>{trail.location}</Text>
+        <Text style={styles.location} numberOfLines={1}>{trail.location}</Text>
         <Text style={styles.meta}>{trail.date}  •  {trail.length} km</Text>
       </View>
     </TouchableOpacity>
@@ -65,8 +65,8 @@ export const HikeCard = ({ trail, onPress, onEdit }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    backgroundColor: '#FAFCF8',
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     padding: 12,
@@ -75,14 +75,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 2,
   },
   thumbnail: {
-    width: 72,
-    height: 72,
-    borderRadius: 12,
+    width: 76,
+    height: 76,
+    borderRadius: 14,
     marginRight: 14,
   },
   content: {
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   title: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1B2E1B',
+    fontWeight: '800',
+    color: '#1F2937',
     flex: 1,
     marginRight: 8,
   },
@@ -105,7 +105,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
-    borderWidth: 1,
   },
   badgeText: {
     fontSize: 11,
@@ -113,12 +112,12 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 13,
-    color: '#4A5568',
-    marginBottom: 4,
+    color: '#6B7280',
+    marginBottom: 6,
   },
   meta: {
     fontSize: 12,
-    color: '#718096',
-    fontWeight: '500',
+    color: '#9CA3AF',
+    fontWeight: '600',
   },
 });

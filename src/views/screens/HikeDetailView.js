@@ -35,7 +35,18 @@ export const HikeDetailView = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* Top Green Bar */}
+      <View style={styles.greenNavHeader}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Text style={styles.backIconText}>↩</Text>
+        </TouchableOpacity>
+        <Text style={styles.navTitle} numberOfLines={1}>{trail.name}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('EditHike', { hikeId: trail.id })}>
+          <Text style={styles.editTopText}>Edit</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Banner Image */}
         <View style={styles.imageBox}>
           <Image source={mainImageSource} style={styles.image} />
@@ -50,7 +61,7 @@ export const HikeDetailView = ({ route, navigation }) => {
         <Text style={styles.title}>{trail.name}</Text>
         <Text style={styles.location}>📍 {trail.location}</Text>
 
-        {/* 5 Tracking Photos Carousel / Gallery */}
+        {/* 5 Tracking Photos Carousel */}
         <View style={styles.galleryBox}>
           <Text style={styles.galleryTitle}>📸 5 Tracking Photos (img1 - img5)</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryScroll}>
@@ -65,30 +76,9 @@ export const HikeDetailView = ({ route, navigation }) => {
           </ScrollView>
         </View>
 
-        {/* Action Row */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity 
-            style={styles.editBtn} 
-            onPress={() => navigation.navigate('EditHike', { hikeId: trail.id })}
-          >
-            <Text style={styles.btnText}>✏️ Edit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.editBtn, { backgroundColor: '#3b82f6' }]} 
-            onPress={() => navigation.navigate('MainTabs', { screen: 'MapTab' })}
-          >
-            <Text style={styles.btnText}>🎯 Live GPS</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteHike}>
-            <Text style={[styles.btnText, { color: '#ef4444' }]}>🗑️ Delete</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Start Location Mini Map Card */}
+        {/* Start Location & Map */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📍 Start Location & Trail Map</Text>
+          <Text style={styles.cardTitle}>Location Map</Text>
           <MiniMap
             lat={startLat}
             lng={startLng}
@@ -97,11 +87,11 @@ export const HikeDetailView = ({ route, navigation }) => {
             plannedRoute={trail.plannedRoute || []}
             actualRoute={trail.actualRoute || []}
             routePoints={trail.routePoints || []}
-            height={220}
+            height={200}
           />
         </View>
 
-        {/* Hike Specs Card */}
+        {/* Hike Specifications Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>📋 Hike Specifications</Text>
 
@@ -119,7 +109,7 @@ export const HikeDetailView = ({ route, navigation }) => {
           </View>
           <View style={styles.specRow}>
             <Text style={styles.specLabel}>Parking Available:</Text>
-            <Text style={[styles.specValue, { color: trail.parking === 'Yes' ? '#10b981' : '#ef4444' }]}>
+            <Text style={[styles.specValue, { color: trail.parking === 'Yes' || trail.parking === 'Available' ? '#2E7D32' : '#EF4444' }]}>
               {trail.parking}
             </Text>
           </View>
@@ -139,52 +129,47 @@ export const HikeDetailView = ({ route, navigation }) => {
             <Text style={styles.specLabel}>Companions:</Text>
             <Text style={styles.specValue}>{trail.companions || 'Friends'}</Text>
           </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specLabel}>Recorded By:</Text>
-            <Text style={styles.specValue}>{trail.creatorName || trail.createdBy || 'Explorer'}</Text>
-          </View>
         </View>
-
-        {/* Description Card */}
-        {trail.description ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>📝 Description & Trail Notes</Text>
-            <Text style={styles.descriptionText}>{trail.description}</Text>
-          </View>
-        ) : null}
 
         {/* Observations Section */}
         <View style={styles.card}>
           <View style={styles.obsHeaderRow}>
-            <Text style={styles.cardTitle}>👁️ Field Observations ({observations.length})</Text>
+            <Text style={styles.cardTitle}>Observations</Text>
             <TouchableOpacity 
-              style={styles.addObsBtn}
+              style={styles.addObsPillBtn}
               onPress={() => setObsModalVisible(true)}
             >
-              <Text style={styles.addObsText}>+ Add Note</Text>
+              <Text style={styles.addObsPillText}>+ Add</Text>
             </TouchableOpacity>
           </View>
 
           {observations.length === 0 ? (
             <Text style={styles.emptyObsText}>No observations added yet for this hike.</Text>
           ) : (
-            observations.map((obs) => (
-              <View key={obs.id} style={styles.obsCard}>
+            observations.map((obs, index) => (
+              <View key={obs.id || index} style={styles.obsCard}>
                 <View style={styles.obsCardHeader}>
                   <Text style={styles.obsText}>{obs.text || obs.observation}</Text>
+                  <Text style={styles.obsGreenTime}>{obs.time || '07:30 AM'}</Text>
+                </View>
+                {obs.comments ? <Text style={styles.obsComment}>{obs.comments}</Text> : null}
+                <View style={styles.obsActionIcons}>
+                  <TouchableOpacity onPress={() => setObsModalVisible(true)} style={{ marginRight: 12 }}>
+                    <Text style={{ fontSize: 16 }}>✏️</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => handleDeleteObs(obs.id)}>
                     <Text style={{ fontSize: 16 }}>🗑️</Text>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.obsMetaRow}>
-                  <Text style={styles.obsMeta}>⏰ {obs.time}</Text>
-                  {obs.weather ? <Text style={styles.obsMeta}>☀️ {obs.weather}</Text> : null}
-                </View>
-                {obs.comments ? <Text style={styles.obsComment}>"{obs.comments}"</Text> : null}
               </View>
             ))
           )}
         </View>
+
+        {/* Remove Journey Red Outlined Button */}
+        <TouchableOpacity style={styles.removeJourneyBtn} onPress={handleDeleteHike} activeOpacity={0.85}>
+          <Text style={styles.removeJourneyText}>Remove Journey</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Observation Add Modal */}
@@ -200,21 +185,45 @@ export const HikeDetailView = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#F6F8F5',
+  },
+  greenNavHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#2E7D32',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  backBtn: {
+    padding: 4,
+  },
+  backIconText: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  navTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 12,
+  },
+  editTopText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
   },
   scrollContent: {
     padding: 16,
     paddingBottom: 40,
   },
-  screenTitle: {
-    color: '#f8fafc',
-    fontSize: 20,
-    fontWeight: '700',
-  },
   imageBox: {
     position: 'relative',
     height: 220,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
     marginBottom: 16,
   },
@@ -226,28 +235,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     right: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     padding: 8,
     borderRadius: 20,
   },
   title: {
     fontSize: 26,
-    fontWeight: '800',
-    color: '#f8fafc',
+    fontWeight: '900',
+    color: '#1E293B',
     marginBottom: 4,
   },
   location: {
     fontSize: 14,
-    color: '#94a3b8',
-    marginBottom: 12,
+    color: '#64748B',
+    marginBottom: 14,
   },
   galleryBox: {
     marginBottom: 16,
   },
   galleryTitle: {
-    color: '#38bdf8',
+    color: '#2E7D32',
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 8,
   },
   galleryScroll: {
@@ -267,7 +276,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 4,
     left: 4,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    backgroundColor: 'rgba(30, 41, 59, 0.8)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -277,46 +286,23 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
   },
-  actionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  editBtn: {
-    backgroundColor: '#10b981',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 10,
-    flex: 1,
-    alignItems: 'center',
-  },
-  deleteBtn: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: '#ef4444',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 10,
-    flex: 1,
-    alignItems: 'center',
-  },
-  btnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
-  },
   card: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardTitle: {
-    color: '#38bdf8',
-    fontSize: 15,
-    fontWeight: '700',
+    color: '#1F2937',
+    fontSize: 18,
+    fontWeight: '800',
     marginBottom: 12,
   },
   specRow: {
@@ -324,21 +310,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: '#F1F5F9',
   },
   specLabel: {
-    color: '#94a3b8',
-    fontSize: 13,
+    color: '#64748B',
+    fontSize: 14,
   },
   specValue: {
-    color: '#f8fafc',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  descriptionText: {
-    color: '#cbd5e1',
+    color: '#1E293B',
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '700',
   },
   obsHeaderRow: {
     flexDirection: 'row',
@@ -346,56 +327,70 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  addObsBtn: {
-    backgroundColor: '#3b82f6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+  addObsPillBtn: {
+    backgroundColor: '#E0F2FE',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
-  addObsText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+  addObsPillText: {
+    color: '#0284C7',
+    fontSize: 13,
+    fontWeight: '800',
   },
   emptyObsText: {
-    color: '#64748b',
+    color: '#94A3B8',
     fontSize: 13,
     fontStyle: 'italic',
   },
   obsCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
+    backgroundColor: '#FAFCF8',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
   },
   obsCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
+    alignItems: 'flex-start',
+    marginBottom: 6,
   },
   obsText: {
-    color: '#f8fafc',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#1E293B',
+    fontSize: 15,
+    fontWeight: '800',
     flex: 1,
     marginRight: 8,
   },
-  obsMetaRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 4,
-  },
-  obsMeta: {
-    color: '#94a3b8',
-    fontSize: 11,
+  obsGreenTime: {
+    color: '#2E7D32',
+    fontSize: 13,
+    fontWeight: '700',
   },
   obsComment: {
-    color: '#cbd5e1',
-    fontSize: 12,
-    fontStyle: 'italic',
-    marginTop: 2,
+    color: '#64748B',
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  obsActionIcons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  removeJourneyBtn: {
+    borderColor: '#EF4444',
+    borderWidth: 1.5,
+    borderRadius: 30,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  removeJourneyText: {
+    color: '#EF4444',
+    fontSize: 15,
+    fontWeight: '800',
   },
 });

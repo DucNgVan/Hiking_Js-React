@@ -1,26 +1,26 @@
 export const COLORS = {
-  bgMain: '#F9FAF5',
+  bgMain: '#F6F8F5',
   cardBg: '#FFFFFF',
   cardBorder: '#E2E8F0',
   
-  primary: '#2E7D32',       // M-Hike Forest Green
-  primaryHover: '#236B28',
-  primaryLight: '#E8F5E9',  // Active tab pill background
-  accentPill: '#DCEDC8',
-
-  textMain: '#1B2E1B',
-  textMuted: '#64748b',
-  textDim: '#94a3b8',
-
-  badgeEasyBg: '#E8F5E9',
-  badgeEasyText: '#2E7D32',
+  primary: '#2E7D32',       // Android Studio Forest Green
+  primaryHover: '#1B5E20',
+  primaryLight: '#DCFCE7',  // Soft light green chip
+  tabActivePill: '#E0F2FE', // Light blue active tab pill (#E0F2FE)
   
-  badgeMediumBg: '#FFF3E0',
-  badgeMediumText: '#E65100',
+  textMain: '#1A202C',
+  textMuted: '#4A5568',
+  textDim: '#718096',
+
+  badgeEasyBg: '#EDFDF5',
+  badgeEasyText: '#276749',
+  
+  badgeMediumBg: '#FFF5F5',
+  badgeMediumText: '#DD6B20',
   
   badgeHardBg: '#FFEBEE',
-  badgeHardText: '#C62828',
+  badgeHardText: '#C53030',
 
-  danger: '#D32F2F',
-  dangerBg: '#FFEBEE',
+  danger: '#EF4444',
+  dangerBg: 'rgba(239, 68, 68, 0.1)',
 };

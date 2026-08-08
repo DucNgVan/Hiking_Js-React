@@ -8,28 +8,62 @@ export const HikeConfirmModal = ({ visible, onClose, onConfirm, hikeData }) => {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Text style={styles.title}>Confirm Hike Entry</Text>
-          <Text style={styles.subtitle}>
-            Please review your details carefully before saving to database:
-          </Text>
+          <Text style={styles.title}>Review Your Adventure</Text>
 
-          <ScrollView style={styles.summaryBox}>
-            <Text style={styles.itemText}><Text style={styles.bold}>Name:</Text> {hikeData.name}</Text>
-            <Text style={styles.itemText}><Text style={styles.bold}>Location:</Text> {hikeData.location}</Text>
-            <Text style={styles.itemText}><Text style={styles.bold}>Date:</Text> {hikeData.date}</Text>
-            <Text style={styles.itemText}><Text style={styles.bold}>Parking:</Text> {hikeData.parking}</Text>
-            <Text style={styles.itemText}><Text style={styles.bold}>Length:</Text> {hikeData.length} km</Text>
-            <Text style={styles.itemText}><Text style={styles.bold}>Difficulty:</Text> {hikeData.difficulty}</Text>
-            {hikeData.weather ? <Text style={styles.itemText}><Text style={styles.bold}>Weather:</Text> {hikeData.weather}</Text> : null}
-            {hikeData.companions ? <Text style={styles.itemText}><Text style={styles.bold}>Companions:</Text> {hikeData.companions}</Text> : null}
-            {hikeData.description ? <Text style={styles.itemText}><Text style={styles.bold}>Description:</Text> {hikeData.description}</Text> : null}
+          <ScrollView style={styles.summaryBox} showsVerticalScrollIndicator={false}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.blueLabel}>HIKE NAME</Text>
+              <Text style={styles.fieldValue}>{hikeData.name}</Text>
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.blueLabel}>LOCATION</Text>
+              <Text style={styles.fieldValue}>{hikeData.location}</Text>
+            </View>
+
+            <View style={styles.rowTwoCols}>
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>DATE & START TIME</Text>
+                <Text style={styles.fieldValue}>{hikeData.date}</Text>
+                <Text style={styles.greenTimeValue}>{hikeData.startTime || '05:35 PM'}</Text>
+              </View>
+
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>DIFFICULTY</Text>
+                <Text style={styles.fieldValue}>{hikeData.difficulty}</Text>
+              </View>
+            </View>
+
+            <View style={styles.rowTwoCols}>
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>DISTANCE</Text>
+                <Text style={styles.fieldValue}>{hikeData.length} km</Text>
+              </View>
+
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>DURATION</Text>
+                <Text style={styles.fieldValue}>{hikeData.time || hikeData.duration || '2'} h</Text>
+              </View>
+            </View>
+
+            <View style={styles.rowTwoCols}>
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>WEATHER</Text>
+                <Text style={styles.fieldValue}>{hikeData.weather || 'Sunny'}</Text>
+              </View>
+
+              <View style={[styles.fieldGroup, { flex: 1 }]}>
+                <Text style={styles.blueLabel}>PARKING</Text>
+                <Text style={styles.fieldValue}>{hikeData.parking || 'Available'}</Text>
+              </View>
+            </View>
           </ScrollView>
 
           <View style={styles.btnRow}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-              <Text style={styles.cancelText}>Back to Edit</Text>
+            <TouchableOpacity style={styles.goBackBtn} onPress={onClose}>
+              <Text style={styles.goBackText}>Go Back</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
+            <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm} activeOpacity={0.85}>
               <Text style={styles.confirmText}>Confirm & Save</Text>
             </TouchableOpacity>
           </View>
@@ -42,70 +76,80 @@ export const HikeConfirmModal = ({ visible, onClose, onConfirm, hikeData }) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'center',
     padding: 20,
   },
   content: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#10b981',
-    maxHeight: '80%',
+    backgroundColor: '#F1F5F2',
+    borderRadius: 24,
+    padding: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
   title: {
-    color: '#10b981',
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  subtitle: {
-    color: '#94a3b8',
-    fontSize: 13,
-    marginBottom: 14,
+    color: '#2E7D32',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 16,
   },
   summaryBox: {
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
-    borderRadius: 12,
-    padding: 12,
+    maxHeight: 360,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  itemText: {
-    color: '#cbd5e1',
-    fontSize: 14,
-    marginBottom: 6,
+  fieldGroup: {
+    marginBottom: 12,
   },
-  bold: {
+  blueLabel: {
+    color: '#2563EB',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  fieldValue: {
+    color: '#1E293B',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  greenTimeValue: {
+    color: '#2E7D32',
+    fontSize: 15,
     fontWeight: '700',
-    color: '#f8fafc',
+    marginTop: 2,
+  },
+  rowTwoCols: {
+    flexDirection: 'row',
+    gap: 12,
   },
   btnRow: {
     flexDirection: 'row',
-    gap: 10,
-  },
-  cancelBtn: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 10,
-    paddingVertical: 12,
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: 14,
+    marginTop: 6,
   },
-  cancelText: {
-    color: '#f8fafc',
-    fontWeight: '600',
+  goBackBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  goBackText: {
+    color: '#475569',
+    fontWeight: '700',
+    fontSize: 14,
   },
   confirmBtn: {
-    flex: 1,
-    backgroundColor: '#10b981',
-    borderRadius: 10,
+    backgroundColor: '#2E7D32',
+    borderRadius: 14,
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    alignItems: 'center',
   },
   confirmText: {
-    color: '#ffffff',
-    fontWeight: '700',
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 14,
   },
 });

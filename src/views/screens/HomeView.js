@@ -21,10 +21,11 @@ export const HomeView = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header Bar */}
       <View style={styles.header}>
         <View>
           <Text style={styles.brandTitle}>M-Hike</Text>
-          <Text style={styles.brandSubtitle}>Discover nature</Text>
+          <Text style={styles.brandSubtitle}>Hello, {user?.name || 'Nguyen Van Duc'}</Text>
         </View>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={signOut}>
@@ -32,7 +33,25 @@ export const HomeView = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Horizontal Difficulty Filter Chips */}
+      {/* Top 3 Summary Stats Cards */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Hikes</Text>
+          <Text style={styles.statValueGreen}>{myStats.hikeCount}</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Distance</Text>
+          <Text style={styles.statValueGreen}>{myStats.totalKm.toFixed(1)} km</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Time</Text>
+          <Text style={styles.statValueGreen}>{myStats.totalHours.toFixed(1)} h</Text>
+        </View>
+      </View>
+
+      {/* Difficulty Filter Chips */}
       <View style={styles.filterContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
           {difficulties.map(item => {
@@ -50,27 +69,6 @@ export const HomeView = ({ navigation }) => {
             );
           })}
         </ScrollView>
-      </View>
-
-      <View style={styles.statsCard}>
-        <View style={styles.statsHeaderRow}>
-          <Text style={styles.statsTitle}>Your hiking summary</Text>
-          <Text style={styles.statsName}>{user?.name || 'Explorer'}</Text>
-        </View>
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{myStats.hikeCount}</Text>
-            <Text style={styles.statLabel}>Hikes</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{myStats.totalKm.toFixed(1)} km</Text>
-            <Text style={styles.statLabel}>Distance</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{myStats.totalHours.toFixed(1)} h</Text>
-            <Text style={styles.statLabel}>Hours</Text>
-          </View>
-        </View>
       </View>
 
       {/* Hikes List */}
@@ -109,7 +107,7 @@ export const HomeView = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgMain,
+    backgroundColor: '#F6F8F5',
   },
   header: {
     flexDirection: 'row',
@@ -120,99 +118,91 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   brandTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#2E7D32',
   },
   brandSubtitle: {
-    fontSize: 13,
-    color: '#4A5568',
+    fontSize: 14,
+    color: '#4B5563',
+    fontWeight: '500',
+    marginTop: 2,
   },
   logoutBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFEBEE',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoutIcon: {
-    fontSize: 18,
-    color: COLORS.danger,
+    fontSize: 20,
+    color: '#2E7D32',
     fontWeight: '700',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 10,
+    marginBottom: 16,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 6,
+  },
+  statValueGreen: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#2E7D32',
   },
   filterContainer: {
     marginBottom: 14,
   },
   filterScroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     gap: 8,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#EDF2F7',
-    marginRight: 6,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
   },
   chipActive: {
-    backgroundColor: COLORS.primaryLight,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
+    backgroundColor: '#E0F2FE',
+    borderColor: '#38BDF8',
   },
   chipText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#4A5568',
+    color: '#374151',
   },
   chipTextActive: {
-    color: COLORS.primary,
-    fontWeight: '700',
-  },
-  statsCard: {
-    marginHorizontal: 20,
-    marginBottom: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  statsHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  statsTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#718096',
-    textTransform: 'uppercase',
-  },
-  statsName: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.primary,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statBox: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 16,
+    color: '#0284C7',
     fontWeight: '800',
-    color: '#1A202C',
-  },
-  statLabel: {
-    fontSize: 11,
-    color: '#718096',
   },
   listContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 90,
   },
   emptyBox: {
@@ -222,20 +212,20 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: '#6B7280',
   },
   fab: {
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#2E7D32',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 30,
-    elevation: 5,
-    shadowColor: COLORS.primary,
+    elevation: 6,
+    shadowColor: '#2E7D32',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -250,6 +240,6 @@ const styles = StyleSheet.create({
   fabText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });

@@ -3,13 +3,17 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useHikes } from '../context/HikeContext';
-import { COLORS } from '../theme';
 
 export const ProfileScreen = () => {
   const { user, updateProfile, signOut } = useAuth();
   const { myStats, resetToSampleData } = useHikes();
   const [name, setName] = useState(user?.name || 'Nguyen Van Duc');
   const [phone, setPhone] = useState(user?.phone || '0788551709');
+
+  const handleUpdate = () => {
+    updateProfile({ name, phone });
+    Alert.alert('Success', 'Profile updated successfully.');
+  };
 
   const handleResetData = async () => {
     Alert.alert(
@@ -34,73 +38,70 @@ export const ProfileScreen = () => {
     );
   };
 
-  const handleUpdate = () => {
-    updateProfile(name, phone);
-    Alert.alert("Profile Updated", "Your profile information has been saved!");
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Title Header */}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Title */}
         <Text style={styles.screenTitle}>My Profile</Text>
 
         {/* Profile Details Card */}
-        <View style={styles.card}>
-          {/* Full Name Field */}
+        <View style={styles.profileCard}>
           <View style={styles.inputOutlineGroup}>
             <Text style={styles.floatingLabel}>Full Name</Text>
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
+              placeholder="Nguyen Van Duc"
+              placeholderTextColor="#94A3B8"
             />
           </View>
 
-          {/* Phone Number Field */}
           <View style={styles.inputOutlineGroup}>
             <Text style={styles.floatingLabel}>Phone Number</Text>
             <TextInput
               style={styles.input}
-              keyboardType="phone-pad"
               value={phone}
               onChangeText={setPhone}
+              keyboardType="phone-pad"
+              placeholder="0788551709"
+              placeholderTextColor="#94A3B8"
             />
           </View>
 
-          {/* Email Text */}
           <Text style={styles.emailText}>{user?.email || 'admin@gmail.com'}</Text>
 
-          {/* Update Info Button */}
-          <TouchableOpacity style={styles.updateBtn} onPress={handleUpdate}>
+          <TouchableOpacity style={styles.updateBtn} onPress={handleUpdate} activeOpacity={0.85}>
             <Text style={styles.updateBtnText}>Update Info</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Personal Statistics Header */}
+        <Text style={styles.sectionGreenTitle}>Personal Statistics</Text>
+
+        {/* Statistics 3-column Card */}
         <View style={styles.statsCard}>
-          <Text style={styles.statsTitle}>Your stats</Text>
-          <View style={styles.statsRow}>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{myStats.hikeCount}</Text>
-              <Text style={styles.statLabel}>Hikes</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{myStats.totalKm.toFixed(1)} km</Text>
-              <Text style={styles.statLabel}>Distance</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{myStats.totalHours.toFixed(1)} h</Text>
-              <Text style={styles.statLabel}>Hours</Text>
-            </View>
+          <View style={styles.statCol}>
+            <Text style={styles.statValGreen}>{myStats.hikeCount}</Text>
+            <Text style={styles.statSubLabel}>Hikes</Text>
+          </View>
+          <View style={styles.statCol}>
+            <Text style={styles.statValGreen}>{myStats.totalKm.toFixed(1)} km</Text>
+            <Text style={styles.statSubLabel}>Distance</Text>
+          </View>
+          <View style={styles.statCol}>
+            <Text style={styles.statValGreen}>{myStats.totalHours.toFixed(1)} h</Text>
+            <Text style={styles.statSubLabel}>Time</Text>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.resetBtn} onPress={handleResetData}>
-          <Text style={styles.resetBtnText}>Reset to 10 Vietnam sample hikes</Text>
+        {/* Reset Sample Data Option */}
+        <TouchableOpacity style={styles.resetLinkBtn} onPress={handleResetData}>
+          <Text style={styles.resetLinkText}>🔄 Reset 10 Vietnam Sample Hikes</Text>
         </TouchableOpacity>
 
-        {/* Sign Out Button */}
-        <TouchableOpacity style={styles.signOutBtn} onPress={signOut}>
+        {/* Sign Out Outlined Red Button matching screenshot 13.51.14 */}
+        <TouchableOpacity style={styles.signOutBtn} onPress={signOut} activeOpacity={0.85}>
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -111,29 +112,28 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgMain,
+    backgroundColor: '#F6F8F5',
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    padding: 20,
     paddingBottom: 40,
   },
   screenTitle: {
     fontSize: 28,
-    fontWeight: '800',
-    color: COLORS.primary,
-    marginBottom: 24,
+    fontWeight: '900',
+    color: '#2E7D32',
+    marginBottom: 16,
   },
-  card: {
+  profileCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
+    padding: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    padding: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
   },
@@ -142,108 +142,95 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginBottom: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginBottom: 14,
     position: 'relative',
   },
   floatingLabel: {
     position: 'absolute',
     top: -10,
-    left: 16,
+    left: 14,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4A5568',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#475569',
     zIndex: 2,
   },
   input: {
     fontSize: 15,
-    color: '#1A202C',
-    paddingVertical: 2,
+    color: '#1E293B',
+    paddingVertical: 4,
   },
   emailText: {
+    color: '#64748B',
     fontSize: 14,
-    color: '#4A5568',
-    marginBottom: 20,
-    paddingLeft: 4,
+    marginBottom: 16,
+    marginLeft: 4,
   },
   updateBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#2E7D32',
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   updateBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  sectionGreenTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#2E7D32',
+    marginBottom: 12,
   },
   statsCard: {
+    flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    padding: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  statsTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 12,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statBox: {
+  statCol: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 12,
-    paddingVertical: 10,
-    marginHorizontal: 4,
   },
-  statValue: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.primary,
+  statValGreen: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#2E7D32',
+    marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 11,
-    color: '#4A5568',
-    marginTop: 2,
+  statSubLabel: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '600',
   },
-  resetBtn: {
-    backgroundColor: '#F59E0B',
-    borderRadius: 14,
-    paddingVertical: 14,
+  resetLinkBtn: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 20,
   },
-  resetBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
+  resetLinkText: {
+    color: '#0284C7',
+    fontSize: 13,
     fontWeight: '700',
   },
   signOutBtn: {
-    backgroundColor: '#FFFFFF',
+    borderColor: '#EF4444',
     borderWidth: 1.5,
-    borderColor: COLORS.danger,
-    borderRadius: 14,
+    borderRadius: 30,
     paddingVertical: 14,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   signOutText: {
-    color: COLORS.danger,
+    color: '#EF4444',
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });
