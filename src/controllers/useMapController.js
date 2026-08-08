@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Alert } from 'react-native';
 import { subscribeLiveGps, getCurrentGpsLocation } from '../services/locationService';
-import { searchLocationChain, reverseGeocodeChain } from '../services/geocodingService';
 import { MAPBOX_ACCESS_TOKEN } from '../config';
 
 const VIETNAM_DEFAULT_LAT = 16.047079;
@@ -16,6 +14,15 @@ export const useMapController = () => {
   const webViewRef = useRef(null);
   const locationSubscriptionRef = useRef(null);
   const initialSyncRef = useRef(false);
+  const lastGpsRef = useRef(null);
+
+  // Filter out microscopic GPS jitter (< 8 meters movement)
+  const isSignificantMovement = (newGps) => {
+    if (!lastGpsRef.current) return true;
+    const latDiff = Math.abs(newGps.lat - lastGpsRef.current.lat);
+    const lngDiff = Math.abs(newGps.lng - lastGpsRef.current.lng);
+    return latDiff > 0.00008 || lngDiff > 0.00008;
+  };
 
   const handleGetLocation = async () => {
     setIsLocating(true);
@@ -23,6 +30,7 @@ export const useMapController = () => {
       const gps = await getCurrentGpsLocation();
       if (gps) {
         setUserGps(gps);
+        lastGpsRef.current = gps;
         setGpsStatus('Live GPS Tracking');
         setErrorMsg(null);
         if (webViewRef.current) {
@@ -47,8 +55,11 @@ export const useMapController = () => {
         const sub = await subscribeLiveGps(
           (gps) => {
             if (!isMounted) return;
-            setUserGps(gps);
-            setGpsStatus('Live GPS Tracking');
+            if (isSignificantMovement(gps)) {
+              lastGpsRef.current = gps;
+              setUserGps(gps);
+              setGpsStatus('Live GPS Tracking');
+            }
             setIsLocating(false);
             setErrorMsg(null);
           },
@@ -56,7 +67,6 @@ export const useMapController = () => {
             if (!isMounted) return;
             setGpsStatus('Location Permission Denied');
             setIsLocating(false);
-            // Fallback to Da Nang location if permission is not granted
             setUserGps({ lat: VIETNAM_DEFAULT_LAT, lng: VIETNAM_DEFAULT_LNG, accuracy: 15 });
           }
         );
@@ -89,7 +99,7 @@ export const useMapController = () => {
     webViewRef.current.injectJavaScript(
       `if (window.updateUserLocation) { window.updateUserLocation(${userGps.lat}, ${userGps.lng}, ${userGps.accuracy || 10}, ${shouldRecenter}); } true;`
     );
-  }, [userGps?.lat, userGps?.lng, userGps?.accuracy]);
+  }, [userGps?.lat, userGps?.lng]);
 
   const initLat = userGps?.lat || VIETNAM_DEFAULT_LAT;
   const initLng = userGps?.lng || VIETNAM_DEFAULT_LNG;
@@ -143,7 +153,7 @@ export const useMapController = () => {
 <body>
   <div id="map"></div>
   <script>
-    mapboxgl.accessToken = '${MAPBOX_ACCESS_TOKEN.replace(/'/g, "\\'")}';
+    mapboxgl.accessToken = '${MAPBOX_ACCESS_TOKEN.replace(/'/g, "\\ me")}';
     var map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v12',

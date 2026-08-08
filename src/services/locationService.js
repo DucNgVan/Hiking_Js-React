@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 
 /**
  * Location Service - Handles device location permissions, position fetching, and live GPS subscriptions
+ * Optimized with 5s timeInterval & 10m distanceInterval to prevent excessive GPS battery drain & jitter
  */
 export const requestLocationPermissions = async () => {
   try {
@@ -20,7 +21,7 @@ export const getCurrentGpsLocation = async () => {
   }
 
   const location = await Location.getCurrentPositionAsync({
-    accuracy: Location.Accuracy.High,
+    accuracy: Location.Accuracy.Balanced,
   });
 
   return {
@@ -40,9 +41,9 @@ export const subscribeLiveGps = async (onLocationUpdate, onError) => {
 
   return await Location.watchPositionAsync(
     {
-      accuracy: Location.Accuracy.BestForNavigation,
-      timeInterval: 1000,
-      distanceInterval: 1,
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 5000,   // Update every 5 seconds instead of 1 second
+      distanceInterval: 10, // Update only after moving 10 meters instead of 1 meter
     },
     (location) => {
       if (location?.coords) {
