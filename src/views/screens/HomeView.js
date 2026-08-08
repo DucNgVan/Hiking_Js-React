@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHomeController } from '../../controllers/useHomeController';
 import { HikeCard } from '../../components/HikeCard';
@@ -19,17 +19,33 @@ export const HomeView = ({ navigation }) => {
     handleNavigateToEdit
   } = useHomeController(navigation);
 
+  const handleConfirmSignOut = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out of your account?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Sign Out", style: "destructive", onPress: signOut }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Bar */}
       <View style={styles.header}>
         <View>
           <Text style={styles.brandTitle}>M-Hike</Text>
-          <Text style={styles.brandSubtitle}>Hello, {user?.name || 'Nguyen Van Duc'}</Text>
+          <Text style={styles.brandSubtitle}>Hello, {user?.name || user?.email || 'Nguyen Van Duc'}</Text>
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={signOut}>
-          <Text style={styles.logoutIcon}>⑂</Text>
+        <TouchableOpacity 
+          style={styles.logoutBtn} 
+          onPress={handleConfirmSignOut}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.logoutIcon}>🚪</Text>
+          <Text style={styles.logoutText}>Exit</Text>
         </TouchableOpacity>
       </View>
 
@@ -129,17 +145,23 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   logoutBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
   },
   logoutIcon: {
-    fontSize: 20,
-    color: '#2E7D32',
+    fontSize: 15,
+    marginRight: 4,
+  },
+  logoutText: {
+    fontSize: 13,
     fontWeight: '700',
+    color: '#DC2626',
   },
   statsContainer: {
     flexDirection: 'row',
